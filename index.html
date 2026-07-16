@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="A prototype of the Global Opportunity Exchange: a voluntary living census that turns shared information into visible opportunities."
+  >
+
+  <title>Global Opportunity Exchange</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content">
+    Skip to main content
+  </a>
+
+  <!-- =========================================================
+       APP HEADER
+  ========================================================== -->
+  <header class="site-header">
+    <a
+      class="brand"
+      href="#"
+      data-view-link="home"
+      aria-label="Global Opportunity Exchange home"
+    >
+      <span class="brand-mark" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+
+      <span class="brand-text">
+        <strong>Global Opportunity Exchange</strong>
+        <small>A Rousix prototype</small>
+      </span>
+    </a>
+
+    <nav class="primary-navigation" aria-label="Primary navigation">
+      <button
+        class="navigation-button is-active"
+        type="button"
+        data-view-link="home"
+      >
+        Home
+      </button>
+
+      <button
+        class="navigation-button"
+        type="button"
+        data-view-link="profile"
+      >
+        My profile
+      </button>
+
+      <button
+        class="navigation-button"
+        type="button"
+        data-view-link="opportunities"
+      >
+        Opportunities
+      </button>
+
+      <button
+        class="navigation-button"
+        type="button"
+        data-view-link="data"
+      >
+        My data
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <button
+        class="icon-button"
+        id="openNotificationsButton"
+        type="button"
+        aria-label="Open notifications"
+      >
+        <span aria-hidden="true">●</span>
+        <span class="notification-indicator" aria-hidden="true"></span>
+      </button>
+
+      <button
+        class="profile-menu-button"
+        id="profileMenuButton"
+        type="button"
+        aria-label="Open profile menu"
+      >
+        <span class="profile-menu-avatar" aria-hidden="true">BM</span>
+        <span class="profile-menu-label">My exchange</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       DEMO NOTICE
+  ========================================================== -->
+  <aside class="demo-notice" aria-label="Prototype notice">
+    <span class="demo-notice-label">Prototype</span>
+
+    <p>
+      All people, providers, rates, programs, eligibility results, and
+      projections displayed here are fictional and are included only to
+      demonstrate the proposed experience.
+    </p>
+
+    <button
+      class="text-button"
+      id="dismissDemoNoticeButton"
+      type="button"
+    >
+      Dismiss
+    </button>
+  </aside>
+
+  <!-- =========================================================
+       MAIN APPLICATION
+  ========================================================== -->
+  <main id="main-content">
+
+    <!-- =======================================================
+         HOME VIEW
+    ======================================================== -->
+    <section
+      class="app-view is-visible"
+      id="homeView"
+      data-view="home"
+      aria-labelledby="homeTitle"
+    >
+      <div class="page-shell">
+
+        <!-- HERO -->
+        <section class="hero-section">
+          <div class="hero-copy">
+            <p class="eyebrow">Your information should work for you</p>
+
+            <h1 id="homeTitle">
+              Build a profile that opens doors.
+            </h1>
+
+            <p class="hero-description">
+              Share only what you choose. See why each answer matters.
+              Unlock financial, educational, career, housing, and community
+              pathways based on your goals.
+            </p>
+
+            <div class="hero-actions">
+              <button
+                class="primary-button"
+                type="button"
+                data-view-link="profile"
+              >
+                Continue my profile
+              </button>
+
+              <button
+                class="secondary-button"
+                type="button"
+                data-view-link="opportunities"
+              >
+                Explore opportunities
+              </button>
+            </div>
+
+            <div class="trust-summary" aria-label="Privacy summary">
+              <span>
+                <strong>You control</strong>
+                what you share
+              </span>
+
+              <span>
+                <strong>You can see</strong>
+                why it is requested
+              </span>
+
+              <span>
+                <strong>You decide</strong>
+                who receives it
+              </span>
+            </div>
+          </div>
+
+          <!-- AVATAR / CHARACTER PANEL -->
+          <article class="avatar-card">
+            <div class="avatar-card-header">
+              <div>
+                <p class="card-kicker">Living profile</p>
+                <h2>Your opportunity character</h2>
+              </div>
+
+              <span class="level-badge">Level 4</span>
+            </div>
+
+            <div class="avatar-stage">
+              <div class="avatar-orbit avatar-orbit-one"></div>
+              <div class="avatar-orbit avatar-orbit-two"></div>
+
+              <svg
+                class="avatar-illustration"
+                viewBox="0 0 260 300"
+                role="img"
+                aria-label="A simplified personal avatar"
+              >
+                <circle
+                  class="avatar-head"
+                  cx="130"
+                  cy="78"
+                  r="42"
+                />
+
+                <path
+                  class="avatar-hair"
+                  d="M89 75c2-32 20-51 45-51 28 0 47 20 47 55-15-10-30-16-49-16-16 0-29 4-43 12Z"
+                />
+
+                <path
+                  class="avatar-body"
+                  d="M64 266c2-75 27-118 66-118s64 43 66 118Z"
+                />
+
+                <path
+                  class="avatar-jacket"
+                  d="M78 266c4-61 20-97 52-118l-10 118Zm104 0c-4-61-20-97-52-118l10 118Z"
+                />
+
+                <circle
+                  class="avatar-tool"
+                  cx="197"
+                  cy="165"
+                  r="25"
+                />
+
+                <path
+                  class="avatar-tool-line"
+                  d="M187 165h20M197 155v20"
+                />
+              </svg>
+
+              <div class="avatar-unlock avatar-unlock-finance">
+                <span aria-hidden="true">$</span>
+                <small>Finance unlocked</small>
+              </div>
+
+              <div class="avatar-unlock avatar-unlock-education">
+                <span aria-hidden="true">A</span>
+                <small>Education unlocked</small>
+              </div>
+            </div>
+
+            <div class="avatar-progress">
+              <div class="progress-heading">
+                <span>Profile usefulness</span>
+                <strong id="overallProgressLabel">42%</strong>
+              </div>
+
+              <div
+                class="progress-track"
+                role="progressbar"
+                aria-label="Overall profile usefulness"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="42"
+              >
+                <span
+                  class="progress-fill"
+                  id="overallProgressBar"
+                  style="width: 42%;"
+                ></span>
+              </div>
+
+              <p>
+                One more answer could improve your savings matches.
+              </p>
+            </div>
+          </article>
+        </section>
+
+        <!-- NEXT BEST QUESTION -->
+        <section
+          class="question-card"
+          aria-labelledby="nextQuestionTitle"
+        >
+          <div class="question-number" aria-hidden="true">01</div>
+
+          <div class="question-content">
+            <p class="card-kicker">Your next useful question</p>
+
+            <h2 id="nextQuestionTitle">
+              How soon might you need access to your savings?
+            </h2>
+
+            <p>
+              Your answer helps remove options whose withdrawal restrictions
+              may not fit your circumstances.
+            </p>
+
+            <div class="question-explanation">
+              <div>
+                <span class="explanation-label">Why we ask</span>
+                <strong>To compare liquidity requirements</strong>
+              </div>
+
+              <div>
+                <span class="explanation-label">What it may unlock</span>
+                <strong>More accurate savings options</strong>
+              </div>
+
+              <div>
+                <span class="explanation-label">Who sees it</span>
+                <strong>Only the matching system unless you approve sharing</strong>
+              </div>
+            </div>
+
+            <fieldset class="answer-options">
+              <legend class="visually-hidden">
+                Select when you might need access to your savings
+              </legend>
+
+              <button
+                class="answer-option"
+                type="button"
+                data-answer="any-time"
+              >
+                <strong>At any time</strong>
+                <span>I need full access to the money.</span>
+              </button>
+
+              <button
+                class="answer-option"
+                type="button"
+                data-answer="within-year"
+              >
+                <strong>Within one year</strong>
+                <span>Some restrictions may be acceptable.</span>
+              </button>
+
+              <button
+                class="answer-option"
+                type="button"
+                data-answer="one-to-three-years"
+              >
+                <strong>One to three years</strong>
+                <span>I can consider a longer commitment.</span>
+              </button>
+
+              <button
+                class="answer-option"
+                type="button"
+                data-answer="three-plus-years"
+              >
+                <strong>More than three years</strong>
+                <span>Long-term options may fit my goal.</span>
+              </button>
+            </fieldset>
+
+            <div class="question-actions">
+              <button
+                class="text-button"
+                id="skipQuestionButton"
+                type="button"
+              >
+                Skip for now
+              </button>
+
+              <button
+                class="text-button"
+                id="questionDetailsButton"
+                type="button"
+              >
+                See how this answer is used
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- OPPORTUNITY DOMAINS -->
+        <section
+          class="domain-section"
+          aria-labelledby="domainsTitle"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Develop the areas that matter to you</p>
+              <h2 id="domainsTitle">Your opportunity paths</h2>
+            </div>
+
+            <p>
+              There is no required order and no expectation that every path
+              must be completed.
+            </p>
+          </div>
+
+          <div class="domain-grid">
+            <article class="domain-card domain-finance">
+              <div class="domain-card-top">
+                <span class="domain-icon" aria-hidden="true">$</span>
+                <span class="domain-progress-label">58%</span>
+              </div>
+
+              <h3>Financial capability</h3>
+
+              <p>
+                Compare savings, checking, debt-reduction, and home-preparation
+                pathways using the information you choose to provide.
+              </p>
+
+              <div
+                class="progress-track progress-track-small"
+                role="progressbar"
+                aria-label="Financial capability profile progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="58"
+              >
+                <span class="progress-fill" style="width: 58%;"></span>
+              </div>
+
+              <div class="domain-status">
+                <strong>3 pathways available</strong>
+                <span>1 new question</span>
+              </div>
+
+              <button
+                class="card-button"
+                type="button"
+                data-domain="finance"
+              >
+                Open financial path
+              </button>
+            </article>
+
+            <article class="domain-card domain-education">
+              <div class="domain-card-top">
+                <span class="domain-icon" aria-hidden="true">A</span>
+                <span class="domain-progress-label">36%</span>
+              </div>
+
+              <h3>Education</h3>
+
+              <p>
+                Build realistic degree and training routes that include
+                tuition, transfer requirements, housing, transportation,
+                aid, and projected cost.
+              </p>
+
+              <div
+                class="progress-track progress-track-small"
+                role="progressbar"
+                aria-label="Education profile progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="36"
+              >
+                <span class="progress-fill" style="width: 36%;"></span>
+              </div>
+
+              <div class="domain-status">
+                <strong>2 pathways available</strong>
+                <span>2 new questions</span>
+              </div>
+
+              <button
+                class="card-button"
+                type="button"
+                data-domain="education"
+              >
+                Open education path
+              </button>
+            </article>
+
+            <article class="domain-card domain-career">
+              <div class="domain-card-top">
+                <span class="domain-icon" aria-hidden="true">+</span>
+                <span class="domain-progress-label">25%</span>
+              </div>
+
+              <h3>Career and skills</h3>
+
+              <p>
+                Connect skills and credentials to suitable work, identify
+                missing qualifications, and explore efficient training routes.
+              </p>
+
+              <div
+                class="progress-track progress-track-small"
+                role="progressbar"
+                aria-label="Career profile progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="25"
+              >
+                <span class="progress-fill" style="width: 25%;"></span>
+              </div>
+
+              <div class="domain-status">
+                <strong>1 pathway available</strong>
+                <span>Verification optional</span>
+              </div>
+
+              <button
+                class="card-button"
+                type="button"
+                data-domain="career"
+              >
+                Open career path
+              </button>
+            </article>
+
+            <article class="domain-card domain-housing">
+              <div class="domain-card-top">
+                <span class="domain-icon" aria-hidden="true">□</span>
+                <span class="domain-progress-label">12%</span>
+              </div>
+
+              <h3>Housing stability</h3>
+
+              <p>
+                Explore affordability, assistance, rental, ownership, and
+                location-based pathways without opening unrelated profile data.
+              </p>
+
+              <div
+                class="progress-track progress-track-small"
+                role="progressbar"
+                aria-label="Housing profile progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="12"
+              >
+                <span class="progress-fill" style="width: 12%;"></span>
+              </div>
+
+              <div class="domain-status">
+                <strong>Profile not started</strong>
+                <span>Optional</span>
+              </div>
+
+              <button
+                class="card-button"
+                type="button"
+                data-domain="housing"
+              >
+                Begin housing path
+              </button>
+            </article>
+          </div>
+        </section>
+
+        <!-- RECENTLY UNLOCKED -->
+        <section
+          class="unlocked-section"
+          aria-labelledby="unlockedTitle"
+        >
+          <div class="section-heading section-heading-compact">
+            <div>
+              <p class="eyebrow">Based on information you provided</p>
+              <h2 id="unlockedTitle">Recently unlocked</h2>
+            </div>
+
+            <button
+              class="text-button"
+              type="button"
+              data-view-link="opportunities"
+            >
+              View all opportunities
+            </button>
+          </div>
+
+          <div class="opportunity-preview-grid">
+            <article class="opportunity-preview-card">
+              <div class="opportunity-type">
+                <span>Financial</span>
+                <small>Illustrative match</small>
+              </div>
+
+              <h3>Flexible savings route</h3>
+
+              <p>
+                Designed for a person who prioritizes access to funds and
+                prefers a low opening minimum.
+              </p>
+
+              <dl class="opportunity-facts">
+                <div>
+                  <dt>Access</dt>
+                  <dd>Any time</dd>
+                </div>
+
+                <div>
+                  <dt>Minimum</dt>
+                  <dd>$25</dd>
+                </div>
+
+                <div>
+                  <dt>Illustrative yield</dt>
+                  <dd>3.80%</dd>
+                </div>
+              </dl>
+
+              <p class="match-reason">
+                <strong>Why it appeared:</strong>
+                Your stated liquidity preference and opening contribution
+                match the example requirements.
+              </p>
+
+              <button
+                class="card-button"
+                type="button"
+                data-opportunity="flexible-savings"
+              >
+                Compare this route
+              </button>
+            </article>
+
+            <article class="opportunity-preview-card">
+              <div class="opportunity-type">
+                <span>Education</span>
+                <small>Illustrative pathway</small>
+              </div>
+
+              <h3>Community college transfer route</h3>
+
+              <p>
+                A two-stage degree path intended to reduce initial tuition
+                while preserving transferable coursework.
+              </p>
+
+              <dl class="opportunity-facts">
+                <div>
+                  <dt>Estimated length</dt>
+                  <dd>4 years</dd>
+                </div>
+
+                <div>
+                  <dt>Housing</dt>
+                  <dd>Live at home</dd>
+                </div>
+
+                <div>
+                  <dt>Projected savings</dt>
+                  <dd>$18,400</dd>
+                </div>
+              </dl>
+
+              <p class="match-reason">
+                <strong>Why it appeared:</strong>
+                Your location, budget, degree goal, and willingness to transfer
+                align with this example route.
+              </p>
+
+              <button
+                class="card-button"
+                type="button"
+                data-opportunity="transfer-route"
+              >
+                Explore this route
+              </button>
+            </article>
+          </div>
+        </section>
+
+        <!-- CONTROL SUMMARY -->
+        <section
+          class="control-summary-card"
+          aria-labelledby="controlSummaryTitle"
+        >
+          <div class="control-summary-copy">
+            <p class="eyebrow">Participation remains revisable</p>
+            <h2 id="controlSummaryTitle">
+              Your profile is not an all-or-nothing disclosure.
+            </h2>
+
+            <p>
+              Review what is stored, distinguish self-reported information
+              from verified information, change permissions, and remove
+              optional answers from one place.
+            </p>
+
+            <button
+              class="secondary-button"
+              type="button"
+              data-view-link="data"
+            >
+              Open my data controls
+            </button>
+          </div>
+
+          <div class="control-summary-stats">
+            <div>
+              <strong>18</strong>
+              <span>answers stored</span>
+            </div>
+
+            <div>
+              <strong>4</strong>
+              <span>verified items</span>
+            </div>
+
+            <div>
+              <strong>0</strong>
+              <span>provider transfers</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         PROFILE VIEW
+    ======================================================== -->
+    <section
+      class="app-view"
+      id="profileView"
+      data-view="profile"
+      aria-labelledby="profileTitle"
+      hidden
+    >
+      <div class="page-shell">
+        <header class="page-heading">
+          <div>
+            <p class="eyebrow">Develop it at your own pace</p>
+            <h1 id="profileTitle">My living profile</h1>
+          </div>
+
+          <p>
+            Add information when it improves a result you care about.
+            A complete digital portrait is never required.
+          </p>
+        </header>
+
+        <div class="profile-layout">
+          <aside class="profile-sidebar">
+            <div class="mini-avatar-card">
+              <div class="mini-avatar" aria-hidden="true">BM</div>
+
+              <div>
+                <strong>Blake’s profile</strong>
+                <span>Level 4 · Emerging navigator</span>
+              </div>
+            </div>
+
+            <nav aria-label="Profile sections">
+              <button
+                class="profile-section-button is-active"
+                type="button"
+                data-profile-section="goals"
+              >
+                Goals
+                <span>4</span>
+              </button>
+
+              <button
+                class="profile-section-button"
+                type="button"
+                data-profile-section="finance"
+              >
+                Financial
+                <span>58%</span>
+              </button>
+
+              <button
+                class="profile-section-button"
+                type="button"
+                data-profile-section="education"
+              >
+                Education
+                <span>36%</span>
+              </button>
+
+              <button
+                class="profile-section-button"
+                type="button"
+                data-profile-section="career"
+              >
+                Career and skills
+                <span>25%</span>
+              </button>
+
+              <button
+                class="profile-section-button"
+                type="button"
+                data-profile-section="housing"
+              >
+                Housing
+                <span>12%</span>
+              </button>
+
+              <button
+                class="profile-section-button"
+                type="button"
+                data-profile-section="community"
+              >
+                Community
+                <span>0%</span>
+              </button>
+            </nav>
+          </aside>
+
+          <div class="profile-main">
+            <section
+              class="profile-panel is-visible"
+              data-profile-panel="goals"
+              aria-labelledby="goalsPanelTitle"
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">You choose the direction</p>
+                  <h2 id="goalsPanelTitle">Current goals</h2>
+                </div>
+
+                <button
+                  class="secondary-button secondary-button-small"
+                  id="addGoalButton"
+                  type="button"
+                >
+                  Add a goal
+                </button>
+              </div>
+
+              <div class="goal-list">
+                <article class="goal-item">
+                  <div class="goal-symbol" aria-hidden="true">$</div>
+
+                  <div class="goal-item-copy">
+                    <span class="goal-status">Active</span>
+                    <h3>Build emergency savings</h3>
+                    <p>
+                      Compare options that preserve access to funds and accept
+                      a modest opening contribution.
+                    </p>
+                  </div>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Edit emergency savings goal"
+                  >
+                    ···
+                  </button>
+                </article>
+
+                <article class="goal-item">
+                  <div class="goal-symbol" aria-hidden="true">A</div>
+
+                  <div class="goal-item-copy">
+                    <span class="goal-status">Active</span>
+                    <h3>Plan an affordable degree</h3>
+                    <p>
+                      Compare direct university and community-college transfer
+                      routes.
+                    </p>
+                  </div>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Edit affordable degree goal"
+                  >
+                    ···
+                  </button>
+                </article>
+
+                <article class="goal-item">
+                  <div class="goal-symbol" aria-hidden="true">+</div>
+
+                  <div class="goal-item-copy">
+                    <span class="goal-status">Exploring</span>
+                    <h3>Find higher-paying work</h3>
+                    <p>
+                      Identify roles that use current skills and reveal any
+                      missing qualifications.
+                    </p>
+                  </div>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Edit career goal"
+                  >
+                    ···
+                  </button>
+                </article>
+
+                <article class="goal-item">
+                  <div class="goal-symbol" aria-hidden="true">□</div>
+
+                  <div class="goal-item-copy">
+                    <span class="goal-status">Not started</span>
+                    <h3>Prepare for home ownership</h3>
+                    <p>
+                      Estimate readiness and explore possible preparation
+                      pathways.
+                    </p>
+                  </div>
+
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Edit home ownership goal"
+                  >
+                    ···
+                  </button>
+                </article>
+              </div>
+            </section>
+
+            <section
+              class="profile-panel"
+              data-profile-panel="finance"
+              aria-labelledby="financePanelTitle"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">Financial capability</p>
+                  <h2 id="financePanelTitle">Information in this path</h2>
+                </div>
+
+                <span class="panel-completion">58% useful</span>
+              </div>
+
+              <div class="profile-field-list">
+                <article class="profile-field">
+                  <div>
+                    <span class="field-status field-status-complete">
+                      Answered
+                    </span>
+                    <h3>Preferred opening contribution</h3>
+                    <p>$100–$499</p>
+                  </div>
+
+                  <button class="text-button" type="button">Edit</button>
+                </article>
+
+                <article class="profile-field">
+                  <div>
+                    <span class="field-status field-status-complete">
+                      Answered
+                    </span>
+                    <h3>Primary financial goal</h3>
+                    <p>Build emergency savings</p>
+                  </div>
+
+                  <button class="text-button" type="button">Edit</button>
+                </article>
+
+                <article class="profile-field profile-field-highlight">
+                  <div>
+                    <span class="field-status field-status-recommended">
+                      Recommended next
+                    </span>
+                    <h3>Expected need for access</h3>
+                    <p>
+                      This answer may remove unsuitable long-term options.
+                    </p>
+                  </div>
+
+                  <button
+                    class="primary-button primary-button-small"
+                    type="button"
+                  >
+                    Answer
+                  </button>
+                </article>
+
+                <article class="profile-field">
+                  <div>
+                    <span class="field-status field-status-optional">
+                      Optional
+                    </span>
+                    <h3>Current savings range</h3>
+                    <p>
+                      May improve projections, but is not required for the
+                      current comparison.
+                    </p>
+                  </div>
+
+                  <button class="text-button" type="button">Add</button>
+                </article>
+              </div>
+            </section>
+
+            <section
+              class="profile-panel"
+              data-profile-panel="education"
+              aria-labelledby="educationPanelTitle"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">Education</p>
+                  <h2 id="educationPanelTitle">Build a realistic route</h2>
+                </div>
+
+                <span class="panel-completion">36% useful</span>
+              </div>
+
+              <div class="empty-detail-card">
+                <span class="empty-detail-symbol" aria-hidden="true">A</span>
+
+                <h3>Your degree goal is active</h3>
+
+                <p>
+                  Add a preferred field of study or location to generate more
+                  specific educational routes.
+                </p>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                >
+                  Continue education profile
+                </button>
+              </div>
+            </section>
+
+            <section
+              class="profile-panel"
+              data-profile-panel="career"
+              aria-labelledby="careerPanelTitle"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">Career and skills</p>
+                  <h2 id="careerPanelTitle">Make your capabilities visible</h2>
+                </div>
+
+                <span class="panel-completion">25% useful</span>
+              </div>
+
+              <div class="empty-detail-card">
+                <span class="empty-detail-symbol" aria-hidden="true">+</span>
+
+                <h3>One possible role has been identified</h3>
+
+                <p>
+                  Adding or verifying a skill could reveal related work and
+                  show whether another credential is needed.
+                </p>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                >
+                  Add a skill
+                </button>
+              </div>
+            </section>
+
+            <section
+              class="profile-panel"
+              data-profile-panel="housing"
+              aria-labelledby="housingPanelTitle"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">Housing</p>
+                  <h2 id="housingPanelTitle">Begin only when useful</h2>
+                </div>
+
+                <span class="panel-completion">12% useful</span>
+              </div>
+
+              <div class="empty-detail-card">
+                <span class="empty-detail-symbol" aria-hidden="true">□</span>
+
+                <h3>This path is almost entirely private</h3>
+
+                <p>
+                  No housing details are required to use your other
+                  opportunity paths.
+                </p>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                >
+                  Choose a housing goal
+                </button>
+              </div>
+            </section>
+
+            <section
+              class="profile-panel"
+              data-profile-panel="community"
+              aria-labelledby="communityPanelTitle"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <p class="card-kicker">Community</p>
+                  <h2 id="communityPanelTitle">Discover nearby resources</h2>
+                </div>
+
+                <span class="panel-completion">Not started</span>
+              </div>
+
+              <div class="empty-detail-card">
+                <span class="empty-detail-symbol" aria-hidden="true">○</span>
+
+                <h3>This path is optional</h3>
+
+                <p>
+                  You can explore services and community connections without
+                  developing this area of your profile.
+                </p>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                >
+                  Explore community path
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         OPPORTUNITIES VIEW
+    ======================================================== -->
+    <section
+      class="app-view"
+      id="opportunitiesView"
+      data-view="opportunities"
+      aria-labelledby="opportunitiesTitle"
+      hidden
+    >
+      <div class="page-shell">
+        <header class="page-heading">
+          <div>
+            <p class="eyebrow">Information returned as possibility</p>
+            <h1 id="opportunitiesTitle">My opportunities</h1>
+          </div>
+
+          <p>
+            Each result explains why it appeared, what information shaped it,
+            and what would need to be shared before you proceed.
+          </p>
+        </header>
+
+        <section class="opportunity-controls" aria-label="Opportunity filters">
+          <div class="filter-buttons">
+            <button
+              class="filter-button is-active"
+              type="button"
+              data-filter="all"
+            >
+              All
+            </button>
+
+            <button
+              class="filter-button"
+              type="button"
+              data-filter="finance"
+            >
+              Financial
+            </button>
+
+            <button
+              class="filter-button"
+              type="button"
+              data-filter="education"
+            >
+              Education
+            </button>
+
+            <button
+              class="filter-button"
+              type="button"
+              data-filter="career"
+            >
+              Career
+            </button>
+
+            <button
+              class="filter-button"
+              type="button"
+              data-filter="housing"
+            >
+              Housing
+            </button>
+          </div>
+
+          <label class="sort-control">
+            <span>Sort by</span>
+
+            <select id="opportunitySort">
+              <option value="best-match">Best match</option>
+              <option value="least-information">Least information needed</option>
+              <option value="newest">Recently added</option>
+            </select>
+          </label>
+        </section>
+
+        <section
+          class="opportunity-list"
+          id="opportunityList"
+          aria-label="Matched opportunities"
+        >
+          <article
+            class="opportunity-card"
+            data-category="finance"
+          >
+            <div class="opportunity-card-heading">
+              <div>
+                <span class="opportunity-category">Financial</span>
+                <h2>Flexible Access Savings</h2>
+                <p class="provider-name">Example Community Provider</p>
+              </div>
+
+              <div class="match-score">
+                <strong>92%</strong>
+                <span>illustrative fit</span>
+              </div>
+            </div>
+
+            <div class="opportunity-card-body">
+              <dl class="comparison-facts">
+                <div>
+                  <dt>Illustrative yield</dt>
+                  <dd>3.80%</dd>
+                </div>
+
+                <div>
+                  <dt>Opening minimum</dt>
+                  <dd>$25</dd>
+                </div>
+
+                <div>
+                  <dt>Access to funds</dt>
+                  <dd>Any time</dd>
+                </div>
+
+                <div>
+                  <dt>Illustrative fee</dt>
+                  <dd>$0 monthly</dd>
+                </div>
+              </dl>
+
+              <div class="opportunity-reason">
+                <h3>Why this appeared</h3>
+
+                <p>
+                  Your emergency-savings goal, expected opening contribution,
+                  and preference for access to funds fit the example
+                  requirements.
+                </p>
+
+                <button
+                  class="text-button"
+                  type="button"
+                  data-explanation-toggle
+                >
+                  See the information used
+                </button>
+
+                <div class="explanation-details" hidden>
+                  <ul>
+                    <li>Goal: Build emergency savings</li>
+                    <li>Opening contribution: $100–$499</li>
+                    <li>Location: Eligible region</li>
+                    <li>Liquidity preference: Not yet confirmed</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="opportunity-card-footer">
+              <p>
+                No information has been sent to this fictional provider.
+              </p>
+
+              <div>
+                <button
+                  class="secondary-button secondary-button-small"
+                  type="button"
+                >
+                  Save
+                </button>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                  data-open-opportunity="flexible-savings"
+                >
+                  Review route
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="opportunity-card"
+            data-category="finance"
+          >
+            <div class="opportunity-card-heading">
+              <div>
+                <span class="opportunity-category">Financial</span>
+                <h2>Long-Term Growth Savings</h2>
+                <p class="provider-name">Example Cooperative Provider</p>
+              </div>
+
+              <div class="match-score">
+                <strong>74%</strong>
+                <span>illustrative fit</span>
+              </div>
+            </div>
+
+            <div class="opportunity-card-body">
+              <dl class="comparison-facts">
+                <div>
+                  <dt>Illustrative yield</dt>
+                  <dd>5.10%</dd>
+                </div>
+
+                <div>
+                  <dt>Opening minimum</dt>
+                  <dd>$100</dd>
+                </div>
+
+                <div>
+                  <dt>Commitment period</dt>
+                  <dd>60 months</dd>
+                </div>
+
+                <div>
+                  <dt>Early-access effect</dt>
+                  <dd>Penalty may apply</dd>
+                </div>
+              </dl>
+
+              <div class="opportunity-reason">
+                <h3>Important tradeoff</h3>
+
+                <p>
+                  This example offers a higher stated return but may not fit
+                  someone who needs immediate access to the money.
+                </p>
+
+                <button
+                  class="text-button"
+                  type="button"
+                  data-explanation-toggle
+                >
+                  See what would improve this match
+                </button>
+
+                <div class="explanation-details" hidden>
+                  <p>
+                    Answering when you expect to need the money would make
+                    this comparison more reliable.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="opportunity-card-footer">
+              <p>
+                Projected terms are fictional and are not a financial offer.
+              </p>
+
+              <div>
+                <button
+                  class="secondary-button secondary-button-small"
+                  type="button"
+                >
+                  Save
+                </button>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                  data-open-opportunity="long-term-savings"
+                >
+                  Review route
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="opportunity-card"
+            data-category="education"
+          >
+            <div class="opportunity-card-heading">
+              <div>
+                <span class="opportunity-category">Education</span>
+                <h2>Community College Transfer Path</h2>
+                <p class="provider-name">Illustrative regional pathway</p>
+              </div>
+
+              <div class="match-score">
+                <strong>88%</strong>
+                <span>illustrative fit</span>
+              </div>
+            </div>
+
+            <div class="opportunity-card-body">
+              <dl class="comparison-facts">
+                <div>
+                  <dt>Estimated duration</dt>
+                  <dd>4 years</dd>
+                </div>
+
+                <div>
+                  <dt>First stage</dt>
+                  <dd>2 years local</dd>
+                </div>
+
+                <div>
+                  <dt>Housing assumption</dt>
+                  <dd>Live at home</dd>
+                </div>
+
+                <div>
+                  <dt>Illustrative total</dt>
+                  <dd>$42,600</dd>
+                </div>
+              </dl>
+
+              <div class="opportunity-reason">
+                <h3>Why this appeared</h3>
+
+                <p>
+                  Your budget, preferred region, degree objective, and
+                  willingness to transfer align with this example route.
+                </p>
+
+                <button
+                  class="text-button"
+                  type="button"
+                  data-explanation-toggle
+                >
+                  See pathway assumptions
+                </button>
+
+                <div class="explanation-details" hidden>
+                  <ul>
+                    <li>Credits transfer successfully</li>
+                    <li>Required academic threshold is maintained</li>
+                    <li>Participant lives at home during the first stage</li>
+                    <li>Estimated tuition and aid remain available</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="opportunity-card-footer">
+              <p>
+                Costs, transfer rules, and aid are illustrative projections.
+              </p>
+
+              <div>
+                <button
+                  class="secondary-button secondary-button-small"
+                  type="button"
+                >
+                  Save
+                </button>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                  data-open-opportunity="transfer-path"
+                >
+                  Explore pathway
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="opportunity-card"
+            data-category="career"
+          >
+            <div class="opportunity-card-heading">
+              <div>
+                <span class="opportunity-category">Career</span>
+                <h2>Research Operations Specialist</h2>
+                <p class="provider-name">Illustrative employer match</p>
+              </div>
+
+              <div class="match-score">
+                <strong>81%</strong>
+                <span>illustrative fit</span>
+              </div>
+            </div>
+
+            <div class="opportunity-card-body">
+              <dl class="comparison-facts">
+                <div>
+                  <dt>Work arrangement</dt>
+                  <dd>Hybrid</dd>
+                </div>
+
+                <div>
+                  <dt>Current skills matched</dt>
+                  <dd>4 of 5</dd>
+                </div>
+
+                <div>
+                  <dt>Missing qualification</dt>
+                  <dd>One certificate</dd>
+                </div>
+
+                <div>
+                  <dt>Training estimate</dt>
+                  <dd>8–12 weeks</dd>
+                </div>
+              </dl>
+
+              <div class="opportunity-reason">
+                <h3>What could improve eligibility</h3>
+
+                <p>
+                  A short fictional certification route could satisfy the
+                  remaining example requirement.
+                </p>
+
+                <button
+                  class="text-button"
+                  type="button"
+                  data-explanation-toggle
+                >
+                  See matched skills
+                </button>
+
+                <div class="explanation-details" hidden>
+                  <ul>
+                    <li>Research design</li>
+                    <li>Data interpretation</li>
+                    <li>Technical writing</li>
+                    <li>Project coordination</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="opportunity-card-footer">
+              <p>
+                No profile information has been disclosed to an employer.
+              </p>
+
+              <div>
+                <button
+                  class="secondary-button secondary-button-small"
+                  type="button"
+                >
+                  Save
+                </button>
+
+                <button
+                  class="primary-button primary-button-small"
+                  type="button"
+                  data-open-opportunity="career-role"
+                >
+                  View qualification path
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         DATA CONTROL VIEW
+    ======================================================== -->
+    <section
+      class="app-view"
+      id="dataView"
+      data-view="data"
+      aria-labelledby="dataTitle"
+      hidden
+    >
+      <div class="page-shell">
+        <header class="page-heading">
+          <div>
+            <p class="eyebrow">Control remains visible</p>
+            <h1 id="dataTitle">My data and permissions</h1>
+          </div>
+
+          <p>
+            Review what the Exchange knows, why it is stored, how it affects
+            matching, and whether it has been shared.
+          </p>
+        </header>
+
+        <section
+          class="data-overview-grid"
+          aria-label="Data overview"
+        >
+          <article>
+            <strong>18</strong>
+            <span>stored answers</span>
+          </article>
+
+          <article>
+            <strong>4</strong>
+            <span>verified items</span>
+          </article>
+
+          <article>
+            <strong>3</strong>
+            <span>active permissions</span>
+          </article>
+
+          <article>
+            <strong>0</strong>
+            <span>provider transfers</span>
+          </article>
+        </section>
+
+        <div class="data-layout">
+          <section
+            class="data-panel"
+            aria-labelledby="storedDataTitle"
+          >
+            <div class="panel-heading">
+              <div>
+                <p class="card-kicker">Your profile record</p>
+                <h2 id="storedDataTitle">Stored information</h2>
+              </div>
+
+              <button
+                class="secondary-button secondary-button-small"
+                id="downloadDataButton"
+                type="button"
+              >
+                Download a copy
+              </button>
+            </div>
+
+            <div class="data-category-list">
+              <details open>
+                <summary>
+                  <span>
+                    <strong>Goals</strong>
+                    <small>4 stored items</small>
+                  </span>
+
+                  <span>Open</span>
+                </summary>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Build emergency savings</strong>
+                    <span>Self-reported · Used for financial matching</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Plan an affordable degree</strong>
+                    <span>Self-reported · Used for education matching</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+              </details>
+
+              <details>
+                <summary>
+                  <span>
+                    <strong>Financial information</strong>
+                    <small>5 stored items</small>
+                  </span>
+
+                  <span>Open</span>
+                </summary>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Opening contribution range</strong>
+                    <span>Self-reported · $100–$499</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Financial goal</strong>
+                    <span>Self-reported · Build emergency savings</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+              </details>
+
+              <details>
+                <summary>
+                  <span>
+                    <strong>Education information</strong>
+                    <small>4 stored items</small>
+                  </span>
+
+                  <span>Open</span>
+                </summary>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Preferred study region</strong>
+                    <span>Self-reported · Used for education matching</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+              </details>
+
+              <details>
+                <summary>
+                  <span>
+                    <strong>Verified information</strong>
+                    <small>4 stored items</small>
+                  </span>
+
+                  <span>Open</span>
+                </summary>
+
+                <div class="data-item">
+                  <div>
+                    <strong>Email address</strong>
+                    <span>Verified · Used for account access</span>
+                  </div>
+
+                  <button class="text-button" type="button">Manage</button>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <aside class="permission-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="card-kicker">Purpose-specific access</p>
+                <h2>Permissions</h2>
+              </div>
+            </div>
+
+            <div class="permission-list">
+              <label class="permission-toggle">
+                <span>
+                  <strong>Use my answers for personal matching</strong>
+                  <small>
+                    Required for the prototype to generate your results.
+                  </small>
+                </span>
+
+                <input
+                  type="checkbox"
+                  id="matchingPermission"
+                  checked
+                >
+
+                <span class="toggle-control" aria-hidden="true"></span>
+              </label>
+
+              <label class="permission-toggle">
+                <span>
+                  <strong>Use de-identified data for aggregate analysis</strong>
+                  <small>
+                    Helps model population needs without displaying your
+                    personal profile.
+                  </small>
+                </span>
+
+                <input
+                  type="checkbox"
+                  id="analyticsPermission"
+                >
+
+                <span class="toggle-control" aria-hidden="true"></span>
+              </label>
+
+              <label class="permission-toggle">
+                <span>
+                  <strong>Allow opportunity reminders</strong>
+                  <small>
+                    Receive a notice when a saved route materially changes.
+                  </small>
+                </span>
+
+                <input
+                  type="checkbox"
+                  id="reminderPermission"
+                  checked
+                >
+
+                <span class="toggle-control" aria-hidden="true"></span>
+              </label>
+            </div>
+
+            <div class="permission-note">
+              <strong>No provider currently has access.</strong>
+
+              <p>
+                Choosing to review an opportunity does not automatically
+                transfer your profile.
+              </p>
+            </div>
+          </aside>
+        </div>
+
+        <section
+          class="danger-zone"
+          aria-labelledby="accountControlsTitle"
+        >
+          <div>
+            <p class="card-kicker">Account controls</p>
+            <h2 id="accountControlsTitle">
+              Revise or end participation
+            </h2>
+
+            <p>
+              You can clear this prototype’s stored answers or reset the
+              demonstration experience.
+            </p>
+          </div>
+
+          <div>
+            <button
+              class="secondary-button"
+              id="clearOptionalDataButton"
+              type="button"
+            >
+              Clear optional answers
+            </button>
+
+            <button
+              class="danger-button"
+              id="resetPrototypeButton"
+              type="button"
+            >
+              Reset prototype
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       OPPORTUNITY REVIEW DIALOG
+  ========================================================== -->
+  <dialog
+    class="app-dialog"
+    id="opportunityDialog"
+    aria-labelledby="opportunityDialogTitle"
+  >
+    <div class="dialog-header">
+      <div>
+        <p class="card-kicker">Illustrative next step</p>
+        <h2 id="opportunityDialogTitle">
+          Review this opportunity
+        </h2>
+      </div>
+
+      <button
+        class="icon-button"
+        id="closeOpportunityDialogButton"
+        type="button"
+        aria-label="Close opportunity review"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="dialog-content">
+      <section>
+        <h3>Before anything is shared</h3>
+
+        <p>
+          The Exchange would identify the minimum information needed for this
+          specific next step. You would review and approve the transfer before
+          a provider received anything.
+        </p>
+      </section>
+
+      <section>
+        <h3>Information this example might require</h3>
+
+        <div class="sharing-list">
+          <label>
+            <input type="checkbox" checked disabled>
+            <span>
+              <strong>Identity confirmation</strong>
+              <small>Required by the fictional provider</small>
+            </span>
+          </label>
+
+          <label>
+            <input type="checkbox" checked disabled>
+            <span>
+              <strong>Eligibility information</strong>
+              <small>Only the fields relevant to this route</small>
+            </span>
+          </label>
+
+          <label>
+            <input type="checkbox">
+            <span>
+              <strong>Broader profile information</strong>
+              <small>Optional and not required for this example</small>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="plain-language-summary">
+        <span>Plain-language summary</span>
+
+        <p>
+          Continuing would not open your entire profile. The next screen would
+          show the exact information requested and the full fictional terms.
+        </p>
+      </section>
+    </div>
+
+    <div class="dialog-footer">
+      <button
+        class="secondary-button"
+        id="cancelOpportunityDialogButton"
+        type="button"
+      >
+        Not now
+      </button>
+
+      <button
+        class="primary-button"
+        id="continueOpportunityButton"
+        type="button"
+      >
+        Review information
+      </button>
+    </div>
+  </dialog>
+
+  <!-- =========================================================
+       QUESTION EXPLANATION DIALOG
+  ========================================================== -->
+  <dialog
+    class="app-dialog"
+    id="questionExplanationDialog"
+    aria-labelledby="questionExplanationTitle"
+  >
+    <div class="dialog-header">
+      <div>
+        <p class="card-kicker">Transparent matching</p>
+        <h2 id="questionExplanationTitle">
+          How this answer would be used
+        </h2>
+      </div>
+
+      <button
+        class="icon-button"
+        id="closeQuestionExplanationButton"
+        type="button"
+        aria-label="Close explanation"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="dialog-content">
+      <p>
+        Your expected need for access helps the prototype distinguish between
+        flexible savings options and options that restrict withdrawals for a
+        longer period.
+      </p>
+
+      <div class="explanation-flow">
+        <div>
+          <span>1</span>
+          <strong>You answer</strong>
+          <p>The information remains part of your financial profile.</p>
+        </div>
+
+        <div>
+          <span>2</span>
+          <strong>The match improves</strong>
+          <p>Unsuitable example routes can be removed or ranked lower.</p>
+        </div>
+
+        <div>
+          <span>3</span>
+          <strong>You remain in control</strong>
+          <p>No fictional provider receives the answer without approval.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <button
+        class="primary-button"
+        id="understandQuestionButton"
+        type="button"
+      >
+        I understand
+      </button>
+    </div>
+  </dialog>
+
+  <!-- =========================================================
+       TOAST MESSAGE
+  ========================================================== -->
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <strong id="toastTitle">Profile updated</strong>
+    <span id="toastMessage">
+      Your answer improved your financial comparison.
+    </span>
+  </div>
+
+  <!-- =========================================================
+       FOOTER
+  ========================================================== -->
+  <footer class="site-footer">
+    <div>
+      <strong>Global Opportunity Exchange</strong>
+
+      <p>
+        A static demonstration of a voluntary, reciprocal living census.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <button type="button" data-view-link="data">
+        Data controls
+      </button>
+
+      <button type="button" id="footerDisclaimerButton">
+        Prototype disclaimer
+      </button>
+    </div>
+
+    <p class="legal-copy">
+      This prototype does not provide financial, legal, educational,
+      employment, housing, investment, or other professional advice. It does
+      not contain real offers, guarantees, eligibility decisions, provider
+      relationships, or securities offerings.
+    </p>
+  </footer>
+
+  <noscript>
+    <div class="noscript-message">
+      This prototype requires JavaScript to switch screens and demonstrate
+      the interactive profile experience.
+    </div>
+  </noscript>
+
+  <script src="app.js"></script>
+</body>
+</html>
