@@ -1,38 +1,31 @@
 /* ============================================================
    GLOBAL OPPORTUNITY EXCHANGE
-   app.js
+   REDESIGNED INTERACTIVE PROTOTYPE
 
-   This file provides:
-   - Single-page navigation
-   - Saved prototype progress
-   - Interactive profile questions
-   - Opportunity filtering
-   - Profile section navigation
-   - Permission controls
-   - Dialogs and explanations
-   - Data download and reset functions
-
-   All information remains inside the visitor's browser.
-   No information is transmitted anywhere.
+   This static prototype:
+   - Uses no server or database
+   - Sends no information anywhere
+   - Stores demonstration choices in the visitor's browser
+   - Allows the visitor to download or reset local prototype data
 ============================================================ */
 
 (() => {
   "use strict";
 
   /* ==========================================================
-     1. CONFIGURATION AND DEFAULT STATE
+     1. CONFIGURATION
   ========================================================== */
 
-  const STORAGE_KEY = "globalOpportunityExchangePrototype";
+  const STORAGE_KEY = "rou six-global-opportunity-exchange-v2"
+    .replace(" ", "");
 
   const DEFAULT_STATE = {
     activeView: "home",
-    activeProfileSection: "goals",
+    activeProfileTab: "goals",
     savingsAccess: null,
     questionSkipped: false,
-    demoNoticeDismissed: false,
-    notificationsSeen: false,
-    savedOpportunities: [],
+    noticeDismissed: false,
+
     permissions: {
       matching: true,
       analytics: false,
@@ -40,86 +33,155 @@
     }
   };
 
-  const SAVINGS_ACCESS_LABELS = {
-    "any-time": "At any time",
-    "within-year": "Within one year",
-    "one-to-three-years": "One to three years",
-    "three-plus-years": "More than three years"
+  const SAVINGS_ANSWERS = {
+    "any-time": {
+      label: "Any time",
+      progress: 49,
+      flexibleScore: 97,
+      growthScore: 34,
+      summary:
+        "You need full flexibility, so the prototype ranks unrestricted access more highly."
+    },
+
+    "within-year": {
+      label: "Within a year",
+      progress: 49,
+      flexibleScore: 94,
+      growthScore: 48,
+      summary:
+        "You may need the money within a year, so longer restrictions reduce the illustrative fit."
+    },
+
+    "one-to-three": {
+      label: "One to three years",
+      progress: 49,
+      flexibleScore: 84,
+      growthScore: 77,
+      summary:
+        "You can consider a longer commitment, so both fictional routes remain plausible."
+    },
+
+    "three-plus": {
+      label: "More than three years",
+      progress: 49,
+      flexibleScore: 76,
+      growthScore: 93,
+      summary:
+        "Your longer time horizon increases the illustrative fit of the fictional growth route."
+    }
   };
 
-  const OPPORTUNITY_DETAILS = {
+  const OPPORTUNITIES = {
     "flexible-savings": {
-      title: "Flexible Access Savings",
       category: "Financial",
-      summary:
-        "This illustrative route prioritizes access to funds, a low opening minimum, and the absence of a fictional monthly maintenance fee.",
-      requiredInformation: [
+      title: "Flexible savings route",
+      description:
+        "A fictional savings option designed for someone who values access to funds and a low opening minimum.",
+
+      terms: [
+        ["Illustrative yield", "3.80%"],
+        ["Opening minimum", "$25"],
+        ["Access", "Any time"],
+        ["Illustrative monthly fee", "$0"]
+      ],
+
+      requiredData: [
         "Identity confirmation",
         "Geographic eligibility",
         "Opening contribution range",
-        "Selected financial goal"
+        "Selected savings goal"
       ]
     },
 
-    "long-term-savings": {
-      title: "Long-Term Growth Savings",
+    "growth-savings": {
       category: "Financial",
-      summary:
-        "This illustrative route offers a higher stated return in exchange for a longer commitment period and possible early-access penalties.",
-      requiredInformation: [
+      title: "Long-term growth route",
+      description:
+        "A fictional savings option with a higher stated return and a longer withdrawal restriction.",
+
+      terms: [
+        ["Illustrative yield", "5.10%"],
+        ["Opening minimum", "$100"],
+        ["Restriction", "60 months"],
+        ["Early access", "A penalty may apply"]
+      ],
+
+      requiredData: [
         "Identity confirmation",
         "Geographic eligibility",
         "Opening contribution amount",
-        "Expected need for access to funds"
+        "Expected need for access"
       ]
     },
 
     "transfer-path": {
-      title: "Community College Transfer Path",
       category: "Education",
-      summary:
-        "This illustrative route combines two years at a community college with transfer to a four-year institution.",
-      requiredInformation: [
+      title: "Community college transfer route",
+      description:
+        "A fictional four-year pathway beginning at a local community college before transfer to a university.",
+
+      terms: [
+        ["Estimated length", "4 years"],
+        ["First stage", "2 years local"],
+        ["Housing assumption", "Live at home"],
+        ["Projected cost", "$42,600"]
+      ],
+
+      requiredData: [
         "Preferred field of study",
         "Academic information",
-        "Residency or location information",
+        "Residency or location",
         "Housing preference"
       ]
     },
 
-    "career-role": {
-      title: "Research Operations Specialist",
+    "research-role": {
       category: "Career",
-      summary:
-        "This illustrative pathway connects existing research and analytical skills to a fictional role while identifying one missing qualification.",
-      requiredInformation: [
-        "Selected skills",
+      title: "Research operations role",
+      description:
+        "A fictional hybrid position that uses existing analytical and research capabilities.",
+
+      terms: [
+        ["Skills matched", "4 of 5"],
+        ["Arrangement", "Hybrid"],
+        ["Missing requirement", "One certificate"],
+        ["Training estimate", "8–12 weeks"]
+      ],
+
+      requiredData: [
+        "Selected professional skills",
         "Relevant credentials",
         "Preferred work arrangement",
-        "Permission to share a limited professional profile"
+        "A limited professional profile"
       ]
     }
   };
 
   let state = loadState();
-  let toastTimeout = null;
-  let currentOpportunityId = null;
+  let toastTimer = null;
+  let activeOpportunityId = null;
 
 
   /* ==========================================================
-     2. ELEMENT HELPERS
+     2. DOM HELPERS
   ========================================================== */
 
-  const select = (selector, parent = document) =>
-    parent.querySelector(selector);
+  function select(selector, parent = document) {
+    return parent.querySelector(selector);
+  }
 
-  const selectAll = (selector, parent = document) =>
-    Array.from(parent.querySelectorAll(selector));
+  function selectAll(selector, parent = document) {
+    return Array.from(parent.querySelectorAll(selector));
+  }
 
 
   /* ==========================================================
      3. LOCAL STORAGE
   ========================================================== */
+
+  function cloneDefaultState() {
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
 
   function loadState() {
     try {
@@ -134,15 +196,11 @@
       return {
         ...cloneDefaultState(),
         ...parsedState,
+
         permissions: {
           ...DEFAULT_STATE.permissions,
           ...(parsedState.permissions || {})
-        },
-        savedOpportunities: Array.isArray(
-          parsedState.savedOpportunities
-        )
-          ? parsedState.savedOpportunities
-          : []
+        }
       };
     } catch (error) {
       console.warn(
@@ -154,13 +212,12 @@
     }
   }
 
-  function cloneDefaultState() {
-    return JSON.parse(JSON.stringify(DEFAULT_STATE));
-  }
-
   function saveState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(state)
+      );
     } catch (error) {
       console.warn(
         "The prototype state could not be saved.",
@@ -171,8 +228,46 @@
 
 
   /* ==========================================================
-     4. VIEW NAVIGATION
+     4. MAIN VIEW NAVIGATION
   ========================================================== */
+
+  function initializeNavigation() {
+    selectAll("[data-view-link]").forEach((control) => {
+      control.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        const viewName = control.dataset.viewLink;
+
+        if (viewName) {
+          showView(viewName);
+        }
+      });
+    });
+
+    select("#accountButton")?.addEventListener(
+      "click",
+      () => {
+        showView("profile");
+      }
+    );
+
+    const allowedViews = [
+      "home",
+      "opportunities",
+      "profile",
+      "privacy"
+    ];
+
+    const startingView = allowedViews.includes(
+      state.activeView
+    )
+      ? state.activeView
+      : "home";
+
+    showView(startingView, {
+      scrollToTop: false
+    });
+  }
 
   function showView(viewName, options = {}) {
     const { scrollToTop = true } = options;
@@ -186,18 +281,24 @@
     }
 
     selectAll(".app-view").forEach((view) => {
-      const isRequestedView = view.dataset.view === viewName;
+      const isActive =
+        view.dataset.view === viewName;
 
-      view.hidden = !isRequestedView;
-      view.classList.toggle("is-visible", isRequestedView);
-    });
-
-    selectAll(".navigation-button").forEach((button) => {
-      button.classList.toggle(
-        "is-active",
-        button.dataset.viewLink === viewName
+      view.hidden = !isActive;
+      view.classList.toggle(
+        "is-visible",
+        isActive
       );
     });
+
+    selectAll(".navigation-link").forEach(
+      (button) => {
+        button.classList.toggle(
+          "is-active",
+          button.dataset.viewLink === viewName
+        );
+      }
+    );
 
     state.activeView = viewName;
     saveState();
@@ -205,588 +306,332 @@
     if (scrollToTop) {
       window.scrollTo({
         top: 0,
-        behavior: prefersReducedMotion() ? "auto" : "smooth"
+        behavior: prefersReducedMotion()
+          ? "auto"
+          : "smooth"
       });
     }
   }
 
-  function initializeViewNavigation() {
-    selectAll("[data-view-link]").forEach((control) => {
-      control.addEventListener("click", (event) => {
-        event.preventDefault();
 
-        const viewName = control.dataset.viewLink;
+  /* ==========================================================
+     5. SCROLL CONTROLS
+  ========================================================== */
 
-        if (viewName) {
-          showView(viewName);
-        }
-      });
-    });
+  function initializeScrollControls() {
+    selectAll("[data-scroll-target]").forEach(
+      (button) => {
+        button.addEventListener("click", () => {
+          const targetId =
+            button.dataset.scrollTarget;
 
-    const profileMenuButton = select("#profileMenuButton");
+          const target = document.getElementById(
+            targetId
+          );
 
-    profileMenuButton?.addEventListener("click", () => {
-      showView("profile");
-    });
-
-    const validViews = [
-      "home",
-      "profile",
-      "opportunities",
-      "data"
-    ];
-
-    const startingView = validViews.includes(state.activeView)
-      ? state.activeView
-      : "home";
-
-    showView(startingView, {
-      scrollToTop: false
-    });
+          target?.scrollIntoView({
+            behavior: prefersReducedMotion()
+              ? "auto"
+              : "smooth",
+            block: "center"
+          });
+        });
+      }
+    );
   }
 
 
   /* ==========================================================
-     5. DEMO NOTICE
+     6. PROTOTYPE NOTICE
   ========================================================== */
 
-  function initializeDemoNotice() {
-    const demoNotice = select(".demo-notice");
-    const dismissButton = select("#dismissDemoNoticeButton");
+  function initializePrototypeNotice() {
+    const notice = select("#prototypeNotice");
+    const dismissButton = select(
+      "#dismissNoticeButton"
+    );
 
-    if (!demoNotice) {
+    if (!notice) {
       return;
     }
 
-    if (state.demoNoticeDismissed) {
-      demoNotice.hidden = true;
-    }
+    notice.hidden = state.noticeDismissed;
 
     dismissButton?.addEventListener("click", () => {
-      state.demoNoticeDismissed = true;
-      demoNotice.hidden = true;
+      state.noticeDismissed = true;
+      notice.hidden = true;
+
       saveState();
 
       showToast(
-        "Prototype notice dismissed",
-        "You can still review the disclaimer at the bottom of the page."
+        "Notice dismissed",
+        "The full prototype disclaimer remains available in the footer."
       );
     });
   }
 
 
   /* ==========================================================
-     6. SAVINGS QUESTION
+     7. SAVINGS QUESTION
   ========================================================== */
 
   function initializeSavingsQuestion() {
-    const answerOptions = selectAll(".answer-option");
-    const skipButton = select("#skipQuestionButton");
-    const detailsButton = select("#questionDetailsButton");
+    selectAll("[data-savings-answer]").forEach(
+      (button) => {
+        button.addEventListener("click", () => {
+          const answerId =
+            button.dataset.savingsAnswer;
 
-    answerOptions.forEach((option) => {
-      option.addEventListener("click", () => {
-        const selectedAnswer = option.dataset.answer;
+          if (!SAVINGS_ANSWERS[answerId]) {
+            return;
+          }
 
-        if (!selectedAnswer) {
-          return;
-        }
+          state.savingsAccess = answerId;
+          state.questionSkipped = false;
 
-        state.savingsAccess = selectedAnswer;
-        state.questionSkipped = false;
+          saveState();
+          renderSavingsState();
 
+          showToast(
+            "Savings profile updated",
+            `${SAVINGS_ANSWERS[answerId].label} is now shaping your fictional savings comparison.`
+          );
+        });
+      }
+    );
+
+    select("#skipQuestionButton")?.addEventListener(
+      "click",
+      () => {
+        state.questionSkipped = true;
         saveState();
-        updateSavingsQuestion();
-        updateOverallProgress();
-        updateFinancialProfileField();
-        updateFinancialOpportunityMatches();
-
-        const answerLabel =
-          SAVINGS_ACCESS_LABELS[selectedAnswer] ||
-          "Your selected preference";
 
         showToast(
-          "Financial profile improved",
-          `${answerLabel} is now being used to refine your illustrative savings matches.`
+          "Question skipped",
+          "You can answer it later without losing access to the rest of the prototype."
         );
-      });
+      }
+    );
+
+    select(
+      "#answerSavingsProfileButton"
+    )?.addEventListener("click", () => {
+      showView("home");
+
+      window.setTimeout(() => {
+        select("#nextQuestion")?.scrollIntoView({
+          behavior: prefersReducedMotion()
+            ? "auto"
+            : "smooth",
+          block: "center"
+        });
+      }, 120);
     });
 
-    skipButton?.addEventListener("click", () => {
-      state.questionSkipped = true;
-      saveState();
-
-      showToast(
-        "Question skipped",
-        "You can return and answer it whenever the information becomes useful."
-      );
-    });
-
-    detailsButton?.addEventListener("click", () => {
-      openQuestionExplanationDialog();
-    });
-
-    updateSavingsQuestion();
-    updateOverallProgress();
-    updateFinancialProfileField();
-    updateFinancialOpportunityMatches();
+    renderSavingsState();
   }
 
-  function updateSavingsQuestion() {
-    selectAll(".answer-option").forEach((option) => {
-      const isSelected =
-        option.dataset.answer === state.savingsAccess;
+  function renderSavingsState() {
+    const answer = state.savingsAccess
+      ? SAVINGS_ANSWERS[state.savingsAccess]
+      : null;
 
-      option.classList.toggle("is-selected", isSelected);
-      option.setAttribute(
-        "aria-pressed",
-        String(isSelected)
-      );
-    });
+    renderSelectedSavingsAnswer();
+    renderProfileProgress(answer);
+    renderFinancialProfileField(answer);
+    renderStoredSavingsAnswer(answer);
+    renderFinancialMatchScores(answer);
   }
 
-  function updateOverallProgress() {
-    const progressLabel = select("#overallProgressLabel");
-    const progressBar = select("#overallProgressBar");
-    const progressTrack = progressBar?.closest(
+  function renderSelectedSavingsAnswer() {
+    selectAll("[data-savings-answer]").forEach(
+      (button) => {
+        const isSelected =
+          button.dataset.savingsAnswer ===
+          state.savingsAccess;
+
+        button.classList.toggle(
+          "is-selected",
+          isSelected
+        );
+
+        button.setAttribute(
+          "aria-pressed",
+          String(isSelected)
+        );
+      }
+    );
+  }
+
+  function renderProfileProgress(answer) {
+    const progress = answer
+      ? answer.progress
+      : 42;
+
+    const label = select(
+      "#profileProgressLabel"
+    );
+
+    const bar = select(
+      "#profileProgressBar"
+    );
+
+    const message = select(
+      "#profileProgressMessage"
+    );
+
+    const progressContainer = bar?.closest(
       '[role="progressbar"]'
     );
 
-    const progress = state.savingsAccess ? 49 : 42;
-
-    if (progressLabel) {
-      progressLabel.textContent = `${progress}%`;
+    if (label) {
+      label.textContent = `${progress}%`;
     }
 
-    if (progressBar) {
-      progressBar.style.width = `${progress}%`;
+    if (bar) {
+      bar.style.width = `${progress}%`;
     }
 
-    if (progressTrack) {
-      progressTrack.setAttribute(
+    if (progressContainer) {
+      progressContainer.setAttribute(
         "aria-valuenow",
         String(progress)
       );
     }
 
-    const progressMessage = select(".avatar-progress p");
-
-    if (progressMessage) {
-      progressMessage.textContent = state.savingsAccess
+    if (message) {
+      message.textContent = answer
         ? "Your savings matches now reflect your expected need for access."
-        : "One more answer could improve your savings matches.";
+        : "One answer could improve your savings matches.";
     }
   }
 
-  function updateFinancialProfileField() {
-    const highlightedField = select(
-      '[data-profile-panel="finance"] .profile-field-highlight'
+  function renderFinancialProfileField(answer) {
+    const field = select(
+      "#savingsAccessProfileField"
     );
 
-    if (!highlightedField) {
+    const text = select(
+      "#savingsAccessProfileText"
+    );
+
+    const button = select(
+      "#answerSavingsProfileButton"
+    );
+
+    const status = field?.querySelector(
+      "div > span"
+    );
+
+    if (!field || !text || !button) {
       return;
     }
 
-    const status = select(".field-status", highlightedField);
-    const heading = select("h3", highlightedField);
-    const description = select("p", highlightedField);
-    const actionButton = select("button", highlightedField);
-
-    if (state.savingsAccess) {
-      highlightedField.classList.remove(
-        "profile-field-highlight"
+    if (answer) {
+      field.classList.remove(
+        "profile-field-recommended"
       );
-
-      status?.classList.remove(
-        "field-status-recommended"
-      );
-
-      status?.classList.add("field-status-complete");
 
       if (status) {
         status.textContent = "Answered";
       }
 
-      if (heading) {
-        heading.textContent = "Expected need for access";
-      }
+      text.textContent = answer.label;
+      button.textContent = "Edit";
 
-      if (description) {
-        description.textContent =
-          SAVINGS_ACCESS_LABELS[state.savingsAccess];
-      }
-
-      if (actionButton) {
-        actionButton.textContent = "Edit";
-        actionButton.classList.remove(
-          "primary-button",
-          "primary-button-small"
-        );
-        actionButton.classList.add("text-button");
-      }
-    } else {
-      highlightedField.classList.add(
-        "profile-field-highlight"
+      button.classList.remove(
+        "primary-button"
       );
 
-      status?.classList.remove("field-status-complete");
-      status?.classList.add("field-status-recommended");
+      button.classList.add(
+        "secondary-button"
+      );
+    } else {
+      field.classList.add(
+        "profile-field-recommended"
+      );
 
       if (status) {
-        status.textContent = "Recommended next";
+        status.textContent =
+          "Recommended next";
       }
 
-      if (heading) {
-        heading.textContent = "Expected need for access";
-      }
+      text.textContent =
+        "This could improve your savings matches.";
 
-      if (description) {
-        description.textContent =
-          "This answer may remove unsuitable long-term options.";
-      }
+      button.textContent = "Answer";
 
-      if (actionButton) {
-        actionButton.textContent = "Answer";
-        actionButton.classList.remove("text-button");
-        actionButton.classList.add(
-          "primary-button",
-          "primary-button-small"
-        );
-      }
+      button.classList.remove(
+        "secondary-button"
+      );
+
+      button.classList.add(
+        "primary-button"
+      );
+    }
+  }
+
+  function renderStoredSavingsAnswer(answer) {
+    const storedAnswer = select(
+      "#storedSavingsAccess"
+    );
+
+    if (storedAnswer) {
+      storedAnswer.textContent = answer
+        ? `${answer.label} · Self-reported`
+        : "Not answered";
+    }
+  }
+
+  function renderFinancialMatchScores(answer) {
+    const flexibleScore = answer
+      ? answer.flexibleScore
+      : 92;
+
+    const growthScore = answer
+      ? answer.growthScore
+      : 74;
+
+    setOpportunityScore(
+      "flexible-savings",
+      flexibleScore
+    );
+
+    setOpportunityScore(
+      "growth-savings",
+      growthScore
+    );
+
+    const featuredScore = select(
+      ".featured-opportunity .match-score"
+    );
+
+    if (featuredScore) {
+      featuredScore.textContent =
+        `${flexibleScore}%`;
     }
 
-    actionButton?.addEventListener(
-      "click",
-      navigateToSavingsQuestion,
-      { once: true }
-    );
-  }
-
-  function navigateToSavingsQuestion() {
-    showView("home");
-
-    window.setTimeout(() => {
-      select(".question-card")?.scrollIntoView({
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-        block: "center"
-      });
-    }, 100);
-  }
-
-
-  /* ==========================================================
-     7. PROFILE SECTION NAVIGATION
-  ========================================================== */
-
-  function initializeProfileSections() {
-    const sectionButtons = selectAll(
-      ".profile-section-button"
+    const featuredExplanation = select(
+      ".match-explanation p"
     );
 
-    sectionButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const sectionName = button.dataset.profileSection;
-
-        if (sectionName) {
-          showProfileSection(sectionName);
-        }
-      });
-    });
-
-    const availableSections = sectionButtons
-      .map((button) => button.dataset.profileSection)
-      .filter(Boolean);
-
-    const startingSection = availableSections.includes(
-      state.activeProfileSection
-    )
-      ? state.activeProfileSection
-      : "goals";
-
-    showProfileSection(startingSection, false);
+    if (featuredExplanation) {
+      featuredExplanation.textContent = answer
+        ? answer.summary
+        : "Your savings goal and opening contribution align with the fictional requirements.";
+    }
   }
 
-  function showProfileSection(
-    sectionName,
-    shouldSave = true
+  function setOpportunityScore(
+    opportunityId,
+    score
   ) {
-    const requestedPanel = select(
-      `[data-profile-panel="${sectionName}"]`
+    const card = select(
+      `[data-opportunity-id="${opportunityId}"]`
     );
 
-    if (!requestedPanel) {
-      return;
-    }
-
-    selectAll("[data-profile-panel]").forEach((panel) => {
-      const isRequested =
-        panel.dataset.profilePanel === sectionName;
-
-      panel.hidden = !isRequested;
-      panel.classList.toggle("is-visible", isRequested);
-    });
-
-    selectAll(".profile-section-button").forEach(
-      (button) => {
-        button.classList.toggle(
-          "is-active",
-          button.dataset.profileSection === sectionName
-        );
-      }
-    );
-
-    state.activeProfileSection = sectionName;
-
-    if (shouldSave) {
-      saveState();
-    }
-  }
-
-  function initializeDomainButtons() {
-    selectAll("[data-domain]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const domainName = button.dataset.domain;
-
-        showView("profile");
-        showProfileSection(domainName);
-
-        window.setTimeout(() => {
-          select(".profile-main")?.scrollIntoView({
-            behavior: prefersReducedMotion()
-              ? "auto"
-              : "smooth",
-            block: "start"
-          });
-        }, 100);
-      });
-    });
-  }
-
-
-  /* ==========================================================
-     8. GOAL BUTTON
-  ========================================================== */
-
-  function initializeGoalControls() {
-    const addGoalButton = select("#addGoalButton");
-
-    addGoalButton?.addEventListener("click", () => {
-      showToast(
-        "Goal library",
-        "A complete implementation could offer financial, educational, career, housing, and community goals here."
-      );
-    });
-  }
-
-
-  /* ==========================================================
-     9. OPPORTUNITY PREVIEW BUTTONS
-  ========================================================== */
-
-  function initializeOpportunityPreviewButtons() {
-    selectAll("[data-opportunity]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const opportunityName =
-          button.dataset.opportunity || "";
-
-        showView("opportunities");
-
-        if (opportunityName.includes("savings")) {
-          applyOpportunityFilter("finance");
-        } else if (
-          opportunityName.includes("transfer")
-        ) {
-          applyOpportunityFilter("education");
-        }
-      });
-    });
-  }
-
-
-  /* ==========================================================
-     10. OPPORTUNITY FILTERING
-  ========================================================== */
-
-  function initializeOpportunityFilters() {
-    selectAll(".filter-button").forEach((button) => {
-      button.addEventListener("click", () => {
-        applyOpportunityFilter(button.dataset.filter);
-      });
-    });
-
-    const sortControl = select("#opportunitySort");
-
-    sortControl?.addEventListener("change", () => {
-      sortOpportunities(sortControl.value);
-    });
-  }
-
-  function applyOpportunityFilter(filterName = "all") {
-    selectAll(".filter-button").forEach((button) => {
-      button.classList.toggle(
-        "is-active",
-        button.dataset.filter === filterName
-      );
-    });
-
-    selectAll(".opportunity-card").forEach((card) => {
-      const matchesFilter =
-        filterName === "all" ||
-        card.dataset.category === filterName;
-
-      card.hidden = !matchesFilter;
-    });
-  }
-
-  function sortOpportunities(sortType) {
-    const opportunityList = select("#opportunityList");
-
-    if (!opportunityList) {
-      return;
-    }
-
-    const cards = selectAll(
-      ".opportunity-card",
-      opportunityList
-    );
-
-    const informationWeights = {
-      "Flexible Access Savings": 2,
-      "Long-Term Growth Savings": 4,
-      "Community College Transfer Path": 3,
-      "Research Operations Specialist": 3
-    };
-
-    const newestWeights = {
-      "Research Operations Specialist": 4,
-      "Flexible Access Savings": 3,
-      "Community College Transfer Path": 2,
-      "Long-Term Growth Savings": 1
-    };
-
-    cards.sort((cardA, cardB) => {
-      const titleA =
-        select("h2", cardA)?.textContent.trim() || "";
-
-      const titleB =
-        select("h2", cardB)?.textContent.trim() || "";
-
-      if (sortType === "least-information") {
-        return (
-          (informationWeights[titleA] || 99) -
-          (informationWeights[titleB] || 99)
-        );
-      }
-
-      if (sortType === "newest") {
-        return (
-          (newestWeights[titleB] || 0) -
-          (newestWeights[titleA] || 0)
-        );
-      }
-
-      const scoreA = readMatchScore(cardA);
-      const scoreB = readMatchScore(cardB);
-
-      return scoreB - scoreA;
-    });
-
-    cards.forEach((card) => {
-      opportunityList.appendChild(card);
-    });
-
-    showToast(
-      "Opportunities reordered",
-      "The visible routes have been sorted using your selected method."
-    );
-  }
-
-  function readMatchScore(card) {
-    const scoreText =
-      select(".match-score strong", card)?.textContent ||
-      "0";
-
-    return Number.parseInt(scoreText, 10) || 0;
-  }
-
-
-  /* ==========================================================
-     11. DYNAMIC FINANCIAL MATCHES
-  ========================================================== */
-
-  function updateFinancialOpportunityMatches() {
-    const financialCards = selectAll(
-      '.opportunity-card[data-category="finance"]'
-    );
-
-    if (financialCards.length < 2) {
-      return;
-    }
-
-    const flexibleCard = financialCards.find((card) =>
-      select("h2", card)?.textContent.includes(
-        "Flexible Access"
-      )
-    );
-
-    const longTermCard = financialCards.find((card) =>
-      select("h2", card)?.textContent.includes(
-        "Long-Term"
-      )
-    );
-
-    const scoreSets = {
-      "any-time": {
-        flexible: 96,
-        longTerm: 38
-      },
-
-      "within-year": {
-        flexible: 94,
-        longTerm: 52
-      },
-
-      "one-to-three-years": {
-        flexible: 84,
-        longTerm: 76
-      },
-
-      "three-plus-years": {
-        flexible: 79,
-        longTerm: 91
-      }
-    };
-
-    const selectedScores =
-      scoreSets[state.savingsAccess] || {
-        flexible: 92,
-        longTerm: 74
-      };
-
-    setOpportunityScore(
-      flexibleCard,
-      selectedScores.flexible
-    );
-
-    setOpportunityScore(
-      longTermCard,
-      selectedScores.longTerm
-    );
-
-    updateFinancialMatchExplanations(
-      flexibleCard,
-      longTermCard
-    );
-  }
-
-  function setOpportunityScore(card, score) {
-    if (!card) {
-      return;
-    }
-
-    const scoreElement = select(
-      ".match-score strong",
-      card
+    const scoreElement = card?.querySelector(
+      ".dynamic-match-score"
     );
 
     if (scoreElement) {
@@ -794,199 +639,155 @@
     }
   }
 
-  function updateFinancialMatchExplanations(
-    flexibleCard,
-    longTermCard
+
+  /* ==========================================================
+     8. PROFILE TABS
+  ========================================================== */
+
+  function initializeProfileTabs() {
+    selectAll("[data-profile-tab]").forEach(
+      (button) => {
+        button.addEventListener("click", () => {
+          const tabName =
+            button.dataset.profileTab;
+
+          if (tabName) {
+            showProfileTab(tabName);
+          }
+        });
+      }
+    );
+
+    const validTabs = [
+      "goals",
+      "finance",
+      "education",
+      "career"
+    ];
+
+    const startingTab = validTabs.includes(
+      state.activeProfileTab
+    )
+      ? state.activeProfileTab
+      : "goals";
+
+    showProfileTab(startingTab, false);
+  }
+
+  function showProfileTab(
+    tabName,
+    shouldSave = true
   ) {
-    const flexibleExplanation = select(
-      ".opportunity-reason > p",
-      flexibleCard
+    const requestedPanel = select(
+      `[data-profile-panel="${tabName}"]`
     );
 
-    const longTermExplanation = select(
-      ".opportunity-reason > p",
-      longTermCard
-    );
-
-    if (!state.savingsAccess) {
-      if (flexibleExplanation) {
-        flexibleExplanation.textContent =
-          "Your emergency-savings goal, expected opening contribution, and preference for access to funds fit the example requirements.";
-      }
-
-      if (longTermExplanation) {
-        longTermExplanation.textContent =
-          "This example offers a higher stated return, but more information is needed to determine whether its access restrictions fit your circumstances.";
-      }
-
+    if (!requestedPanel) {
       return;
     }
 
-    const answer =
-      SAVINGS_ACCESS_LABELS[state.savingsAccess];
+    selectAll("[data-profile-panel]").forEach(
+      (panel) => {
+        const isActive =
+          panel.dataset.profilePanel === tabName;
 
-    if (flexibleExplanation) {
-      flexibleExplanation.textContent =
-        `You indicated that you may need access ${answer.toLowerCase()}. This answer changes how strongly the prototype ranks this flexible route.`;
-    }
+        panel.hidden = !isActive;
+        panel.classList.toggle(
+          "is-visible",
+          isActive
+        );
+      }
+    );
 
-    if (longTermExplanation) {
-      longTermExplanation.textContent =
-        `You indicated that you may need access ${answer.toLowerCase()}. The prototype uses that answer when evaluating this route's fictional 60-month restriction.`;
+    selectAll("[data-profile-tab]").forEach(
+      (button) => {
+        button.classList.toggle(
+          "is-active",
+          button.dataset.profileTab === tabName
+        );
+      }
+    );
+
+    state.activeProfileTab = tabName;
+
+    if (shouldSave) {
+      saveState();
     }
   }
 
 
   /* ==========================================================
-     12. EXPANDABLE OPPORTUNITY EXPLANATIONS
+     9. PATH BUTTONS
   ========================================================== */
 
-  function initializeExplanationToggles() {
-    selectAll("[data-explanation-toggle]").forEach(
+  function initializePathButtons() {
+    selectAll("[data-open-path]").forEach(
       (button) => {
         button.addEventListener("click", () => {
-          const explanationContainer =
-            button.nextElementSibling;
+          const pathName =
+            button.dataset.openPath;
 
-          if (
-            !explanationContainer ||
-            !explanationContainer.classList.contains(
-              "explanation-details"
-            )
-          ) {
-            return;
-          }
+          showView("profile");
+          showProfileTab(pathName);
 
-          const isOpening =
-            explanationContainer.hidden;
-
-          explanationContainer.hidden = !isOpening;
-
-          button.textContent = isOpening
-            ? "Hide explanation"
-            : getOriginalExplanationLabel(button);
+          window.setTimeout(() => {
+            select(".profile-content")?.scrollIntoView({
+              behavior: prefersReducedMotion()
+                ? "auto"
+                : "smooth",
+              block: "start"
+            });
+          }, 120);
         });
       }
     );
   }
 
-  function getOriginalExplanationLabel(button) {
-    const cardTitle =
-      select(
-        "h2",
-        button.closest(".opportunity-card")
-      )?.textContent || "";
-
-    if (
-      cardTitle.includes("Flexible Access")
-    ) {
-      return "See the information used";
-    }
-
-    if (cardTitle.includes("Long-Term")) {
-      return "See what would improve this match";
-    }
-
-    if (cardTitle.includes("Transfer")) {
-      return "See pathway assumptions";
-    }
-
-    return "See matched skills";
-  }
-
 
   /* ==========================================================
-     13. SAVE OPPORTUNITIES
+     10. OPPORTUNITY FILTERS
   ========================================================== */
 
-  function initializeSaveButtons() {
-    selectAll(".opportunity-card").forEach((card) => {
-      const footerButtons = selectAll(
-        ".opportunity-card-footer button",
-        card
-      );
+  function initializeOpportunityFilters() {
+    selectAll(
+      "[data-opportunity-filter]"
+    ).forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter =
+          button.dataset.opportunityFilter;
 
-      const saveButton = footerButtons.find(
-        (button) =>
-          button.textContent.trim() === "Save" ||
-          button.textContent.trim() === "Saved"
-      );
-
-      if (!saveButton) {
-        return;
-      }
-
-      const opportunityTitle =
-        select("h2", card)?.textContent.trim() || "";
-
-      updateSaveButton(
-        saveButton,
-        opportunityTitle
-      );
-
-      saveButton.addEventListener("click", () => {
-        toggleSavedOpportunity(
-          opportunityTitle,
-          saveButton
-        );
+        applyOpportunityFilter(filter);
       });
     });
   }
 
-  function toggleSavedOpportunity(
-    opportunityTitle,
-    button
+  function applyOpportunityFilter(
+    filter = "all"
   ) {
-    const existingIndex =
-      state.savedOpportunities.indexOf(
-        opportunityTitle
+    selectAll(
+      "[data-opportunity-filter]"
+    ).forEach((button) => {
+      button.classList.toggle(
+        "is-active",
+        button.dataset.opportunityFilter ===
+          filter
       );
+    });
 
-    const isCurrentlySaved = existingIndex !== -1;
+    selectAll(".opportunity-card").forEach(
+      (card) => {
+        const shouldShow =
+          filter === "all" ||
+          card.dataset.category === filter;
 
-    if (isCurrentlySaved) {
-      state.savedOpportunities.splice(
-        existingIndex,
-        1
-      );
-    } else {
-      state.savedOpportunities.push(
-        opportunityTitle
-      );
-    }
-
-    saveState();
-    updateSaveButton(button, opportunityTitle);
-
-    showToast(
-      isCurrentlySaved
-        ? "Opportunity removed"
-        : "Opportunity saved",
-      isCurrentlySaved
-        ? `${opportunityTitle} was removed from your saved routes.`
-        : `${opportunityTitle} is now saved in this browser.`
-    );
-  }
-
-  function updateSaveButton(
-    button,
-    opportunityTitle
-  ) {
-    const isSaved =
-      state.savedOpportunities.includes(
-        opportunityTitle
-      );
-
-    button.textContent = isSaved ? "Saved" : "Save";
-    button.setAttribute(
-      "aria-pressed",
-      String(isSaved)
+        card.hidden = !shouldShow;
+      }
     );
   }
 
 
   /* ==========================================================
-     14. OPPORTUNITY REVIEW DIALOG
+     11. OPPORTUNITY DIALOG
   ========================================================== */
 
   function initializeOpportunityDialog() {
@@ -1000,65 +801,70 @@
       }
     );
 
-    const dialog = select("#opportunityDialog");
-    const closeButton = select(
+    const dialog = select(
+      "#opportunityDialog"
+    );
+
+    select(
       "#closeOpportunityDialogButton"
-    );
-    const cancelButton = select(
-      "#cancelOpportunityDialogButton"
-    );
-    const continueButton = select(
+    )?.addEventListener("click", () => {
+      closeDialog(dialog);
+    });
+
+    select(
+      "#cancelOpportunityButton"
+    )?.addEventListener("click", () => {
+      closeDialog(dialog);
+    });
+
+    select(
       "#continueOpportunityButton"
-    );
-
-    closeButton?.addEventListener("click", () => {
-      closeDialog(dialog);
-    });
-
-    cancelButton?.addEventListener("click", () => {
-      closeDialog(dialog);
-    });
-
-    continueButton?.addEventListener("click", () => {
-      if (currentOpportunityId === "disclaimer") {
+    )?.addEventListener("click", () => {
+      if (
+        activeOpportunityId === "disclaimer"
+      ) {
         closeDialog(dialog);
         return;
       }
 
-      const details =
-        OPPORTUNITY_DETAILS[currentOpportunityId];
+      const opportunity =
+        OPPORTUNITIES[activeOpportunityId];
 
       closeDialog(dialog);
 
       showToast(
         "No information was shared",
-        details
-          ? `The next stage for ${details.title} would show the exact fictional fields requested.`
-          : "The next stage would show the exact fictional fields requested."
+        opportunity
+          ? `A real next step for ${opportunity.title} would show the exact fields requested before asking for approval.`
+          : "A real next step would show the exact fields requested before asking for approval."
       );
     });
 
-    initializeDialogBackdropClose(dialog);
+    initializeBackdropClose(dialog);
   }
 
-  function openOpportunityDialog(opportunityId) {
-    const dialog = select("#opportunityDialog");
-    const details =
-      OPPORTUNITY_DETAILS[opportunityId];
+  function openOpportunityDialog(
+    opportunityId
+  ) {
+    const opportunity =
+      OPPORTUNITIES[opportunityId];
 
-    if (!dialog || !details) {
+    const dialog = select(
+      "#opportunityDialog"
+    );
+
+    if (!opportunity || !dialog) {
       return;
     }
 
-    currentOpportunityId = opportunityId;
+    activeOpportunityId = opportunityId;
 
     const title = select(
       "#opportunityDialogTitle"
     );
 
-    const content = select(
-      ".dialog-content",
-      dialog
+    const body = select(
+      "#opportunityDialogBody"
     );
 
     const continueButton = select(
@@ -1066,13 +872,14 @@
     );
 
     if (title) {
-      title.textContent = details.title;
+      title.textContent = opportunity.title;
     }
 
-    if (content) {
-      content.innerHTML = buildOpportunityDialogContent(
-        details
-      );
+    if (body) {
+      body.innerHTML =
+        buildOpportunityDialogContent(
+          opportunity
+        );
     }
 
     if (continueButton) {
@@ -1083,135 +890,93 @@
     openDialog(dialog);
   }
 
-  function buildOpportunityDialogContent(details) {
-    const informationItems =
-      details.requiredInformation
+  function buildOpportunityDialogContent(
+    opportunity
+  ) {
+    const terms = opportunity.terms
+      .map(
+        ([label, value]) => `
+          <div>
+            <span>${escapeHTML(label)}</span>
+            <strong>${escapeHTML(value)}</strong>
+          </div>
+        `
+      )
+      .join("");
+
+    const requiredData =
+      opportunity.requiredData
         .map(
           (item) => `
-            <label>
-              <input type="checkbox" checked disabled>
-              <span>
-                <strong>${escapeHTML(item)}</strong>
-                <small>
-                  Included only if necessary for this fictional route
-                </small>
-              </span>
-            </label>
+            <div>
+              <span class="status-dot"></span>
+
+              <p>${escapeHTML(item)}</p>
+            </div>
           `
         )
         .join("");
 
     return `
-      <section>
-        <h3>${escapeHTML(details.category)} route</h3>
+      <p class="eyebrow">
+        ${escapeHTML(opportunity.category)}
+      </p>
 
-        <p>
-          ${escapeHTML(details.summary)}
-        </p>
-      </section>
+      <p>
+        ${escapeHTML(opportunity.description)}
+      </p>
 
-      <section>
-        <h3>Information this example may require</h3>
+      <div class="explanation-steps">
+        ${terms}
+      </div>
 
-        <div class="sharing-list">
-          ${informationItems}
+      <div
+        style="
+          margin-top: 28px;
+          padding-top: 24px;
+          border-top: 1px solid var(--border);
+        "
+      >
+        <h3>
+          Information this fictional route may require
+        </h3>
 
-          <label>
-            <input type="checkbox">
-
-            <span>
-              <strong>Broader profile information</strong>
-
-              <small>
-                Optional and not required for this demonstration
-              </small>
-            </span>
-          </label>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 18px;
+          "
+        >
+          ${requiredData}
         </div>
-      </section>
+      </div>
 
-      <section class="plain-language-summary">
-        <span>Plain-language summary</span>
+      <div
+        class="sharing-status"
+        style="margin-top: 28px;"
+      >
+        <span class="status-dot"></span>
 
-        <p>
-          Continuing would not open your entire profile.
-          The next stage would display the exact information
-          requested and allow you to approve or reject the transfer.
-        </p>
-      </section>
+        <div>
+          <strong>
+            Nothing has been transferred
+          </strong>
+
+          <p>
+            Continuing would first show the exact
+            information requested and allow you to
+            approve or reject the transfer.
+          </p>
+        </div>
+      </div>
     `;
-  }
-
-  function openDisclaimerDialog() {
-    const dialog = select("#opportunityDialog");
-    const title = select(
-      "#opportunityDialogTitle"
-    );
-    const content = select(
-      ".dialog-content",
-      dialog
-    );
-    const continueButton = select(
-      "#continueOpportunityButton"
-    );
-
-    if (!dialog || !content) {
-      return;
-    }
-
-    currentOpportunityId = "disclaimer";
-
-    if (title) {
-      title.textContent = "Prototype disclaimer";
-    }
-
-    content.innerHTML = `
-      <section>
-        <h3>This website is a conceptual demonstration.</h3>
-
-        <p>
-          The people, institutions, financial accounts, rates,
-          contribution requirements, commitment periods,
-          educational pathways, employment roles, costs,
-          eligibility results, and projections displayed here
-          are fictional.
-        </p>
-      </section>
-
-      <section>
-        <h3>No offer or professional advice</h3>
-
-        <p>
-          Nothing on this prototype constitutes an offer,
-          solicitation, guarantee, recommendation, eligibility
-          decision, financial product, securities offering,
-          educational placement, employment opportunity,
-          housing opportunity, or professional advice.
-        </p>
-      </section>
-
-      <section class="plain-language-summary">
-        <span>What the prototype demonstrates</span>
-
-        <p>
-          The experience is intended to show how voluntary
-          information sharing could produce understandable
-          opportunity comparisons while preserving visible,
-          purpose-specific control over personal data.
-        </p>
-      </section>
-    `;
-
-    if (continueButton) {
-      continueButton.textContent = "Close";
-    }
-
-    openDialog(dialog);
   }
 
 
   /* ==========================================================
-     15. QUESTION EXPLANATION DIALOG
+     12. QUESTION EXPLANATION DIALOG
   ========================================================== */
 
   function initializeQuestionDialog() {
@@ -1219,34 +984,30 @@
       "#questionExplanationDialog"
     );
 
-    const closeButton = select(
-      "#closeQuestionExplanationButton"
-    );
+    select(
+      "#openQuestionExplanationButton"
+    )?.addEventListener("click", () => {
+      openDialog(dialog);
+    });
 
-    const understandButton = select(
+    select(
+      "#closeQuestionDialogButton"
+    )?.addEventListener("click", () => {
+      closeDialog(dialog);
+    });
+
+    select(
       "#understandQuestionButton"
-    );
-
-    closeButton?.addEventListener("click", () => {
+    )?.addEventListener("click", () => {
       closeDialog(dialog);
     });
 
-    understandButton?.addEventListener("click", () => {
-      closeDialog(dialog);
-    });
-
-    initializeDialogBackdropClose(dialog);
-  }
-
-  function openQuestionExplanationDialog() {
-    openDialog(
-      select("#questionExplanationDialog")
-    );
+    initializeBackdropClose(dialog);
   }
 
 
   /* ==========================================================
-     16. DIALOG HELPERS
+     13. DIALOG HELPERS
   ========================================================== */
 
   function openDialog(dialog) {
@@ -1254,9 +1015,13 @@
       return;
     }
 
-    document.body.classList.add("dialog-open");
+    document.body.classList.add(
+      "dialog-open"
+    );
 
-    if (typeof dialog.showModal === "function") {
+    if (
+      typeof dialog.showModal === "function"
+    ) {
       dialog.showModal();
     } else {
       dialog.setAttribute("open", "");
@@ -1277,23 +1042,25 @@
       dialog.removeAttribute("open");
     }
 
-    document.body.classList.remove("dialog-open");
+    document.body.classList.remove(
+      "dialog-open"
+    );
   }
 
-  function initializeDialogBackdropClose(dialog) {
+  function initializeBackdropClose(dialog) {
     if (!dialog) {
       return;
     }
 
     dialog.addEventListener("click", (event) => {
-      const rectangle =
+      const bounds =
         dialog.getBoundingClientRect();
 
       const clickedInside =
-        event.clientX >= rectangle.left &&
-        event.clientX <= rectangle.right &&
-        event.clientY >= rectangle.top &&
-        event.clientY <= rectangle.bottom;
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom;
 
       if (!clickedInside) {
         closeDialog(dialog);
@@ -1309,207 +1076,203 @@
 
 
   /* ==========================================================
-     17. PERMISSION CONTROLS
+     14. PRIVACY PERMISSIONS
   ========================================================== */
 
   function initializePermissions() {
-    const matchingPermission = select(
-      "#matchingPermission"
-    );
+    const controls = {
+      matching: select(
+        "#matchingPermission"
+      ),
 
-    const analyticsPermission = select(
-      "#analyticsPermission"
-    );
+      analytics: select(
+        "#analyticsPermission"
+      ),
 
-    const reminderPermission = select(
-      "#reminderPermission"
-    );
+      reminders: select(
+        "#remindersPermission"
+      )
+    };
 
-    if (matchingPermission) {
-      matchingPermission.checked =
-        state.permissions.matching;
+    Object.entries(controls).forEach(
+      ([permissionName, input]) => {
+        if (!input) {
+          return;
+        }
 
-      matchingPermission.addEventListener(
-        "change",
-        () => {
-          state.permissions.matching =
-            matchingPermission.checked;
+        input.checked =
+          state.permissions[permissionName];
+
+        input.addEventListener("change", () => {
+          state.permissions[permissionName] =
+            input.checked;
 
           saveState();
 
-          showToast(
-            matchingPermission.checked
-              ? "Personal matching enabled"
-              : "Personal matching paused",
-            matchingPermission.checked
-              ? "Your stored answers can again shape the prototype's opportunity results."
-              : "Your stored answers remain visible, but the prototype will treat matching as paused."
+          showPermissionToast(
+            permissionName,
+            input.checked
           );
-        }
-      );
-    }
+        });
+      }
+    );
+  }
 
-    if (analyticsPermission) {
-      analyticsPermission.checked =
-        state.permissions.analytics;
+  function showPermissionToast(
+    permissionName,
+    enabled
+  ) {
+    const messages = {
+      matching: {
+        enabled: [
+          "Personal matching enabled",
+          "Your stored answers can shape the opportunities shown in this browser."
+        ],
 
-      analyticsPermission.addEventListener(
-        "change",
-        () => {
-          state.permissions.analytics =
-            analyticsPermission.checked;
+        disabled: [
+          "Personal matching paused",
+          "Your answers remain stored, but matching is treated as paused."
+        ]
+      },
 
-          saveState();
+      analytics: {
+        enabled: [
+          "Aggregate analysis enabled",
+          "This preference is saved only as part of the local demonstration."
+        ],
 
-          showToast(
-            analyticsPermission.checked
-              ? "Aggregate analysis enabled"
-              : "Aggregate analysis disabled",
-            "This setting is saved only as part of the local demonstration."
-          );
-        }
-      );
-    }
+        disabled: [
+          "Aggregate analysis disabled",
+          "The prototype will retain this preference in your browser."
+        ]
+      },
 
-    if (reminderPermission) {
-      reminderPermission.checked =
-        state.permissions.reminders;
+      reminders: {
+        enabled: [
+          "Reminders enabled",
+          "This static prototype does not send real notifications."
+        ],
 
-      reminderPermission.addEventListener(
-        "change",
-        () => {
-          state.permissions.reminders =
-            reminderPermission.checked;
+        disabled: [
+          "Reminders disabled",
+          "No opportunity reminders will be represented as active."
+        ]
+      }
+    };
 
-          saveState();
+    const selectedMessage =
+      messages[permissionName]?.[
+        enabled ? "enabled" : "disabled"
+      ];
 
-          showToast(
-            reminderPermission.checked
-              ? "Opportunity reminders enabled"
-              : "Opportunity reminders disabled",
-            "This static prototype does not send actual notifications."
-          );
-        }
+    if (selectedMessage) {
+      showToast(
+        selectedMessage[0],
+        selectedMessage[1]
       );
     }
   }
 
 
   /* ==========================================================
-     18. DATA DOWNLOAD
+     15. DATA DOWNLOAD
   ========================================================== */
 
   function initializeDataDownload() {
-    const downloadButton = select(
+    select(
       "#downloadDataButton"
-    );
+    )?.addEventListener("click", () => {
+      const savingsAnswer =
+        state.savingsAccess
+          ? SAVINGS_ANSWERS[
+              state.savingsAccess
+            ].label
+          : "Not answered";
 
-    downloadButton?.addEventListener("click", () => {
       const exportData = {
-        prototype: "Global Opportunity Exchange",
-        exportedAt: new Date().toISOString(),
+        prototype:
+          "Global Opportunity Exchange",
+
+        exportedAt:
+          new Date().toISOString(),
+
         notice:
-          "This file contains only fictional prototype data stored in this browser.",
+          "This file contains fictional demonstration data stored locally in the visitor's browser.",
+
         profile: {
+          name: "Blake",
+          level: 4,
+
           goals: [
             "Build emergency savings",
             "Plan an affordable degree",
-            "Find higher-paying work",
-            "Prepare for home ownership"
+            "Find higher-paying work"
           ],
-          openingContributionRange: "$100–$499",
-          savingsAccess: state.savingsAccess
-            ? SAVINGS_ACCESS_LABELS[
-                state.savingsAccess
-              ]
-            : "Not answered",
-          savedOpportunities:
-            state.savedOpportunities
+
+          financial: {
+            primaryGoal:
+              "Build emergency savings",
+
+            openingContribution:
+              "$100–$499",
+
+            expectedNeedForAccess:
+              savingsAnswer
+          }
         },
+
         permissions: {
           ...state.permissions
         }
       };
 
-      const fileContents = JSON.stringify(
+      downloadJSON(
         exportData,
-        null,
-        2
+        "global-opportunity-exchange-profile.json"
       );
 
-      const blob = new Blob([fileContents], {
-        type: "application/json"
-      });
-
-      const downloadURL =
-        URL.createObjectURL(blob);
-
-      const temporaryLink =
-        document.createElement("a");
-
-      temporaryLink.href = downloadURL;
-      temporaryLink.download =
-        "global-opportunity-exchange-profile.json";
-
-      document.body.appendChild(temporaryLink);
-      temporaryLink.click();
-      temporaryLink.remove();
-
-      URL.revokeObjectURL(downloadURL);
-
       showToast(
-        "Prototype data downloaded",
-        "A JSON copy of the demonstration profile was created."
+        "Profile copy downloaded",
+        "A JSON file containing the fictional local profile was created."
       );
     });
   }
 
+  function downloadJSON(data, filename) {
+    const contents = JSON.stringify(
+      data,
+      null,
+      2
+    );
+
+    const blob = new Blob([contents], {
+      type: "application/json"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
 
   /* ==========================================================
-     19. CLEAR AND RESET CONTROLS
+     16. RESET
   ========================================================== */
 
-  function initializeResetControls() {
-    const clearOptionalButton = select(
-      "#clearOptionalDataButton"
-    );
-
-    const resetButton = select(
+  function initializeResetControl() {
+    select(
       "#resetPrototypeButton"
-    );
-
-    clearOptionalButton?.addEventListener(
-      "click",
-      () => {
-        const shouldClear = window.confirm(
-          "Clear the optional savings answer and saved opportunities from this browser?"
-        );
-
-        if (!shouldClear) {
-          return;
-        }
-
-        state.savingsAccess = null;
-        state.questionSkipped = false;
-        state.savedOpportunities = [];
-
-        saveState();
-        updateSavingsQuestion();
-        updateOverallProgress();
-        updateFinancialProfileField();
-        updateFinancialOpportunityMatches();
-        refreshSaveButtons();
-
-        showToast(
-          "Optional answers cleared",
-          "The demonstration kept its basic profile but removed optional selections."
-        );
-      }
-    );
-
-    resetButton?.addEventListener("click", () => {
+    )?.addEventListener("click", () => {
       const shouldReset = window.confirm(
-        "Reset the entire prototype to its original state?"
+        "Reset all locally stored prototype choices?"
       );
 
       if (!shouldReset) {
@@ -1521,120 +1284,112 @@
     });
   }
 
-  function refreshSaveButtons() {
-    selectAll(".opportunity-card").forEach((card) => {
-      const title =
-        select("h2", card)?.textContent.trim() || "";
-
-      const saveButton = selectAll(
-        ".opportunity-card-footer button",
-        card
-      ).find((button) =>
-        ["Save", "Saved"].includes(
-          button.textContent.trim()
-        )
-      );
-
-      if (saveButton) {
-        updateSaveButton(saveButton, title);
-      }
-    });
-  }
-
 
   /* ==========================================================
-     20. NOTIFICATIONS
+     17. DISCLAIMER
   ========================================================== */
 
-  function initializeNotifications() {
-    const notificationButton = select(
-      "#openNotificationsButton"
-    );
-
-    const indicator = select(
-      ".notification-indicator"
-    );
-
-    if (state.notificationsSeen && indicator) {
-      indicator.hidden = true;
-    }
-
-    notificationButton?.addEventListener("click", () => {
-      state.notificationsSeen = true;
-
-      if (indicator) {
-        indicator.hidden = true;
-      }
-
-      saveState();
-
-      showToast(
-        "One prototype update",
-        "A new financial question may improve your savings comparisons."
-      );
-    });
-  }
-
-
-  /* ==========================================================
-     21. FOOTER DISCLAIMER
-  ========================================================== */
-
-  function initializeFooterControls() {
-    const disclaimerButton = select(
-      "#footerDisclaimerButton"
-    );
-
-    disclaimerButton?.addEventListener("click", () => {
+  function initializeDisclaimer() {
+    select(
+      "#openDisclaimerButton"
+    )?.addEventListener("click", () => {
       openDisclaimerDialog();
     });
   }
 
+  function openDisclaimerDialog() {
+    const dialog = select(
+      "#opportunityDialog"
+    );
+
+    const title = select(
+      "#opportunityDialogTitle"
+    );
+
+    const body = select(
+      "#opportunityDialogBody"
+    );
+
+    const continueButton = select(
+      "#continueOpportunityButton"
+    );
+
+    if (!dialog || !body) {
+      return;
+    }
+
+    activeOpportunityId = "disclaimer";
+
+    if (title) {
+      title.textContent =
+        "Prototype disclaimer";
+    }
+
+    body.innerHTML = `
+      <p>
+        This website is a conceptual demonstration
+        of the proposed Global Opportunity Exchange.
+        It does not contain real providers, accounts,
+        rates, programs, jobs, educational placements,
+        eligibility determinations, or guarantees.
+      </p>
+
+      <p>
+        Nothing displayed here constitutes financial,
+        legal, tax, investment, educational, employment,
+        housing, or other professional advice.
+      </p>
+
+      <div class="sharing-status">
+        <span class="status-dot"></span>
+
+        <div>
+          <strong>
+            Static demonstration
+          </strong>
+
+          <p>
+            The website has no database and sends no
+            profile information anywhere. Demonstration
+            choices are stored only in the visitor's
+            browser.
+          </p>
+        </div>
+      </div>
+    `;
+
+    if (continueButton) {
+      continueButton.textContent = "Close";
+    }
+
+    openDialog(dialog);
+  }
+
 
   /* ==========================================================
-     22. GENERAL DEMONSTRATION BUTTONS
+     18. SECONDARY PROTOTYPE CONTROLS
   ========================================================== */
 
-  function initializeDemonstrationButtons() {
-    const handledSelectors = [
-      "[data-view-link]",
-      "[data-domain]",
-      "[data-opportunity]",
-      "[data-open-opportunity]",
-      "[data-explanation-toggle]",
-      ".answer-option",
-      ".filter-button",
-      ".profile-section-button",
-      "#addGoalButton",
-      "#skipQuestionButton",
-      "#questionDetailsButton",
-      "#downloadDataButton",
-      "#clearOptionalDataButton",
-      "#resetPrototypeButton",
-      "#openNotificationsButton",
-      "#profileMenuButton",
-      "#dismissDemoNoticeButton",
-      "#footerDisclaimerButton",
-      "#closeOpportunityDialogButton",
-      "#cancelOpportunityDialogButton",
-      "#continueOpportunityButton",
-      "#closeQuestionExplanationButton",
-      "#understandQuestionButton"
-    ].join(",");
-
-    selectAll("button").forEach((button) => {
-      if (
-        button.matches(handledSelectors) ||
-        button.closest(".opportunity-card-footer") ||
-        button.closest(".dialog-footer")
-      ) {
-        return;
+  function initializeSecondaryControls() {
+    select("#addGoalButton")?.addEventListener(
+      "click",
+      () => {
+        showToast(
+          "Goal library",
+          "A complete platform could offer additional financial, education, career, housing, and community goals here."
+        );
       }
+    );
 
+    selectAll(
+      ".profile-field .quiet-button, " +
+      ".stored-data-row .quiet-button, " +
+      ".empty-panel .primary-button"
+    ).forEach((button) => {
       button.addEventListener("click", () => {
         showToast(
           "Prototype interaction",
-          "This control demonstrates where the complete platform would open another step."
+          "This control marks where a complete implementation would open another focused step."
         );
       });
     });
@@ -1642,40 +1397,47 @@
 
 
   /* ==========================================================
-     23. TOAST MESSAGES
+     19. TOAST
   ========================================================== */
 
   function showToast(title, message) {
     const toast = select("#toast");
-    const toastTitle = select("#toastTitle");
-    const toastMessage = select("#toastMessage");
+    const titleElement = select(
+      "#toastTitle"
+    );
+
+    const messageElement = select(
+      "#toastMessage"
+    );
 
     if (!toast) {
       return;
     }
 
-    if (toastTitle) {
-      toastTitle.textContent = title;
+    if (titleElement) {
+      titleElement.textContent = title;
     }
 
-    if (toastMessage) {
-      toastMessage.textContent = message;
+    if (messageElement) {
+      messageElement.textContent = message;
     }
 
     toast.classList.add("is-visible");
 
-    if (toastTimeout) {
-      window.clearTimeout(toastTimeout);
+    if (toastTimer) {
+      window.clearTimeout(toastTimer);
     }
 
-    toastTimeout = window.setTimeout(() => {
-      toast.classList.remove("is-visible");
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove(
+        "is-visible"
+      );
     }, 4200);
   }
 
 
   /* ==========================================================
-     24. UTILITY FUNCTIONS
+     20. UTILITIES
   ========================================================== */
 
   function prefersReducedMotion() {
@@ -1695,28 +1457,24 @@
 
 
   /* ==========================================================
-     25. START THE APPLICATION
+     21. INITIALIZATION
   ========================================================== */
 
   function initializeApplication() {
-    initializeViewNavigation();
-    initializeDemoNotice();
+    initializeNavigation();
+    initializeScrollControls();
+    initializePrototypeNotice();
     initializeSavingsQuestion();
-    initializeProfileSections();
-    initializeDomainButtons();
-    initializeGoalControls();
-    initializeOpportunityPreviewButtons();
+    initializeProfileTabs();
+    initializePathButtons();
     initializeOpportunityFilters();
-    initializeExplanationToggles();
-    initializeSaveButtons();
     initializeOpportunityDialog();
     initializeQuestionDialog();
     initializePermissions();
     initializeDataDownload();
-    initializeResetControls();
-    initializeNotifications();
-    initializeFooterControls();
-    initializeDemonstrationButtons();
+    initializeResetControl();
+    initializeDisclaimer();
+    initializeSecondaryControls();
   }
 
   if (document.readyState === "loading") {
